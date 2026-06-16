@@ -47,7 +47,7 @@ export default function SearchPage() {
 
   const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
   const [category, setCategory] = useState(searchParams.get('funding_categories') || '');
-  const [eligibility, setEligibility] = useState(searchParams.get('eligibilities') || '21');
+  const [eligibility, setEligibility] = useState(searchParams.get('eligibilities') || '');
   const [status, setStatus] = useState('forecasted|posted');
   const [awardFloor, setAwardFloor] = useState('');
   const [awardCeiling, setAwardCeiling] = useState('');

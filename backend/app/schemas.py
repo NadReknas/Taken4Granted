@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 class GrantSearchRequest(BaseModel):
     keyword: str = ""
-    eligibilities: str = "21"  # Default to "Individuals"
+    eligibilities: str = ""  # Empty = all applicant types; "21" = Individuals only
     agencies: str = ""
     opp_statuses: str = "forecasted|posted"
     funding_categories: str = ""
