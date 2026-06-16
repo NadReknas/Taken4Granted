@@ -146,7 +146,6 @@ export default function ApplicationsPage() {
         <div className="space-y-3">
           {apps.map((app) => {
             const si = getStatusInfo(app.status);
-            const currentIdx = STATUS_PIPELINE.findIndex((s) => s.key === app.status);
             return (
               <div
                 key={app.id}
