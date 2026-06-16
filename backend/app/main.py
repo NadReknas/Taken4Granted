@@ -1,3 +1,6 @@
+import logging
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -6,6 +9,9 @@ from pathlib import Path
 from app.config import settings
 from app.database import init_db
 from app.routers import grants, users
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Taken4Granted",
@@ -27,7 +33,9 @@ app.include_router(users.router)
 
 @app.on_event("startup")
 def on_startup():
+    logger.info("Starting Taken4Granted on port %s", os.environ.get("PORT", "8000"))
     init_db()
+    logger.info("Database initialized successfully")
 
 
 @app.get("/api/health")
