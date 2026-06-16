@@ -65,8 +65,8 @@ export interface SearchResponse {
 
 export async function searchGrants(params: SearchParams): Promise<SearchResponse> {
   const body: Record<string, unknown> = { ...params };
-  if (!body.award_floor) delete body.award_floor;
-  if (!body.award_ceiling) delete body.award_ceiling;
+  if (body.award_floor == null) delete body.award_floor;
+  if (body.award_ceiling == null) delete body.award_ceiling;
 
   const resp = await fetch(`${API_BASE}/api/grants/search`, {
     method: 'POST',

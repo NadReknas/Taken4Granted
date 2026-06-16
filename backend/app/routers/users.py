@@ -141,8 +141,7 @@ def update_application(
     if not tracker:
         raise HTTPException(status_code=404, detail="Application not found")
     for key, value in update.model_dump(exclude_unset=True).items():
-        if value is not None:
-            setattr(tracker, key, value)
+        setattr(tracker, key, value)
     db.commit()
     db.refresh(tracker)
     return tracker

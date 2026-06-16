@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, ExternalLink, Loader2, DollarSign, Building2, Calendar, Mail, Phone, FileText } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import { fetchGrantDetail, type GrantDetail } from '../lib/api';
 
 interface Props {
@@ -180,7 +181,7 @@ export default function GrantDetailModal({ opportunityId, onClose }: Props) {
                   <h3 className="text-sm font-semibold text-gray-700 mb-2">Description</h3>
                   <div
                     className="prose prose-sm max-w-none text-gray-600"
-                    dangerouslySetInnerHTML={{ __html: detail.description }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(detail.description) }}
                   />
                 </div>
               )}

@@ -115,6 +115,9 @@ export default function SearchPage() {
       const key = String(grant.id);
       if (next.has(key)) {
         next.delete(key);
+        const bookmarks = JSON.parse(localStorage.getItem('t4g_bookmarks') || '[]');
+        const updated = bookmarks.filter((b: GrantSummary) => b.id !== grant.id);
+        localStorage.setItem('t4g_bookmarks', JSON.stringify(updated));
       } else {
         next.add(key);
         // Store in localStorage for the bookmarks page
