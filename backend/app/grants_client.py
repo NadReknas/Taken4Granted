@@ -31,10 +31,12 @@ async def search_grants(
     award_ceiling: float | None = None,
 ) -> GrantSearchResponse:
     """Search Grants.gov opportunities via the search2 endpoint."""
+    start_record = (page - 1) * rows + 1
     payload: dict = {
         "keyword": keyword,
         "oppStatuses": opp_statuses,
         "rows": rows,
+        "startRecord": start_record,
     }
     if eligibilities:
         payload["eligibilities"] = eligibilities
@@ -55,7 +57,7 @@ async def search_grants(
         data = resp.json()
 
     hits = data.get("data", {}).get("oppHits", [])
-    total = data.get("data", {}).get("totalCount", 0)
+    total = data.get("data", {}).get("hitCount", 0)
 
     results: list[GrantSummary] = []
     for hit in hits:
@@ -69,21 +71,26 @@ async def search_grants(
             if opp_floor > award_ceiling:
                 continue
 
+        # Convert cfdaList to funding category-like objects
+        cfda_items = [
+            {"id": c, "description": c} for c in hit.get("cfdaList", [])
+        ]
+
         results.append(
             GrantSummary(
-                id=hit.get("id", 0),
+                id=int(hit.get("id", 0)),
                 opportunity_number=hit.get("number", ""),
                 title=hit.get("title", ""),
-                agency=hit.get("agency", hit.get("agencyCode", "")),
+                agency=hit.get("agency") or hit.get("agencyCode", ""),
                 award_floor=opp_floor,
                 award_ceiling=opp_ceiling,
-                close_date=hit.get("closeDate") or hit.get("closeDateStr"),
-                posting_date=hit.get("openDate") or hit.get("postingDateStr"),
+                close_date=hit.get("closeDate"),
+                posting_date=hit.get("openDate"),
                 status=hit.get("oppStatus", ""),
                 funding_instrument=hit.get("fundingInstrument"),
                 cost_sharing=hit.get("costSharing", False),
                 applicant_types=hit.get("applicantTypes", []),
-                funding_categories=hit.get("fundingCategories", []),
+                funding_categories=cfda_items,
             )
         )
 
