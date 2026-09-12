@@ -1,0 +1,16 @@
+{
+  "name": "grant-radar",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "migrate": "npm run migrate -w apps/api",
+    "ingest": "npm run ingest -w apps/api",
+    "digest": "npm run digest -w apps/api"
+  },
+  "engines": { "node": ">=20" }
+}
