@@ -1,0 +1,30 @@
+# Railway has no Dockerfile target selector, so this file is the `web` target of the root Dockerfile.
+# Build context is the repo root (RAILWAY_DOCKERFILE_PATH=deploy/railway/Dockerfile.web).
+# syntax=docker/dockerfile:1.7
+
+FROM node:20-alpine AS base
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/
+COPY apps/web/package.json apps/web/
+
+
+FROM base AS web-build
+ARG API_URL=http://api:4000
+ENV API_URL=$API_URL NEXT_TELEMETRY_DISABLED=1
+RUN npm ci --workspace apps/web --include-workspace-root --include=dev
+COPY apps/web apps/web
+RUN npm run build -w apps/web
+
+FROM node:20-alpine AS web
+WORKDIR /app
+ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=web-build --chown=app:app /app/apps/web/.next/standalone ./
+COPY --from=web-build --chown=app:app /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=web-build --chown=app:app /app/apps/web/public ./apps/web/public
+USER app
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD wget -qO- http://127.0.0.1:${PORT}/robots.txt || exit 1
+CMD ["node", "apps/web/server.js"]

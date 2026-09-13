@@ -1,0 +1,32 @@
+# Railway has no Dockerfile target selector, so this file is the `api` target of the root Dockerfile.
+# Build context is the repo root (RAILWAY_DOCKERFILE_PATH=deploy/railway/Dockerfile.api).
+# syntax=docker/dockerfile:1.7
+
+FROM node:20-alpine AS base
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/
+COPY apps/web/package.json apps/web/
+
+
+FROM base AS api-build
+RUN npm ci --workspace apps/api --include-workspace-root --include=dev
+COPY apps/api apps/api
+RUN npm run build -w apps/api && npm prune --omit=dev --workspace apps/api && mkdir -p apps/api/node_modules
+
+FROM node:20-alpine AS api
+WORKDIR /app
+ENV NODE_ENV=production PORT=4000 HOST=0.0.0.0
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=api-build --chown=app:app /app/node_modules ./node_modules
+COPY --from=api-build --chown=app:app /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=api-build --chown=app:app /app/apps/api/dist ./apps/api/dist
+COPY --from=api-build --chown=app:app /app/apps/api/config ./apps/api/config
+COPY --from=api-build --chown=app:app /app/apps/api/package.json ./apps/api/package.json
+USER app
+WORKDIR /app/apps/api
+EXPOSE 4000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD wget -qO- http://127.0.0.1:${PORT}/healthz || exit 1
+# Override with `node dist/worker.js` for the scheduled worker.
+CMD ["node", "dist/server.js"]

@@ -82,17 +82,18 @@ stored in `stripe_events` for idempotency.
 
 ## Deploy (Railway)
 
-Create one Postgres plugin and three services from this repo, all with the same env vars from `.env.example`:
+Railway builds one Dockerfile per service and has no stage/target selector, so the `api` and `web` targets are also
+available as standalone files in `deploy/railway/`. Create one Postgres service and three GitHub services from this repo:
 
-| Service | Dockerfile target | Start command                     | Notes                                  |
-| ------- | ----------------- | --------------------------------- | -------------------------------------- |
-| api     | `api`             | default (`node dist/server.js`)   | expose port 4000, `/healthz` health    |
-| worker  | `api`             | `node dist/worker.js`             | no public port                         |
-| web     | `web`             | default                           | build arg `API_URL=http://api.railway.internal:4000` (private network) |
+| Service | `RAILWAY_DOCKERFILE_PATH`        | Start command          | Key variables                                              |
+| ------- | -------------------------------- | ---------------------- | ---------------------------------------------------------- |
+| api     | `deploy/railway/Dockerfile.api`  | default                | `HOST=::`, `DATABASE_URL`, `APP_URL`, `API_URL`, secrets   |
+| worker  | `deploy/railway/Dockerfile.api`  | `node dist/worker.js`  | same as api, no public domain                              |
+| web     | `deploy/railway/Dockerfile.web`  | default                | `API_URL=http://api.railway.internal:4000`, `APP_URL`      |
 
-`railway.json` in the repo root configures the `api` service; set the target/command overrides for the other two in the
-Railway UI (Settings → Build → Dockerfile target / Deploy → Start command). Set `APP_URL` to the public web domain and
-`API_URL` to the public API domain. If web and API share a parent domain, set `COOKIE_DOMAIN`.
+`HOST=::` makes the API listen on IPv6, which Railway's private network requires. `API_URL` on `web` is baked in at
+build time (it configures the `/api/*` rewrite), so redeploy `web` if it changes. Set `APP_URL` to the public web domain
+and `API_URL` on `api`/`worker` to the public API domain; enable `DATABASE_SSL=true` only for external Postgres providers.
 
 For Fly.io, use the same three processes: `fly launch --dockerfile Dockerfile --build-target api` and add a
 `[processes]` block with `api = "node dist/server.js"` and `worker = "node dist/worker.js"`.
