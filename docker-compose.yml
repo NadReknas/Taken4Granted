@@ -54,8 +54,9 @@ services:
     environment:
       API_URL: http://api:4000
       APP_URL: ${APP_URL:-http://localhost:8080}
+      PORT: ${PORT:-8080}
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:${PORT:-8080}"
     depends_on:
       - api
     restart: unless-stopped
