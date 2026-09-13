@@ -14,6 +14,13 @@ export interface IngestResult {
 
 export async function upsertOpportunity(o: NormalizedOpportunity): Promise<"inserted" | "updated"> {
   const slug = buildSlug(o);
+  // The same notice can surface from several configured sources (e.g. two Grants.gov queries);
+  // keep one row per notice, owned by whichever source indexed it first.
+  const owner = await one<{ source_id: string }>(
+    "SELECT source_id FROM opportunities WHERE slug = $1",
+    [slug],
+  );
+  const sourceId = owner?.source_id ?? o.sourceId;
   const row = await one<{ inserted: boolean }>(
     `INSERT INTO opportunities (
        source_id, external_id, slug, title, agency, level, states, entity_types, categories,
@@ -30,7 +37,7 @@ export async function upsertOpportunity(o: NormalizedOpportunity): Promise<"inse
        last_seen_at = now(), updated_at = now()
      RETURNING (xmax = 0) AS inserted`,
     [
-      o.sourceId,
+      sourceId,
       o.externalId,
       slug,
       o.title,
