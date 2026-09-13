@@ -1,20 +1,9 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-dist/
-*.db
-.env
-
-# Node
 node_modules/
-frontend/dist/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-
-# OS
+dist/
+.next/
+.env
+.env.*.local
+*.log
+coverage/
 .DS_Store
-Thumbs.db
+*.tsbuildinfo

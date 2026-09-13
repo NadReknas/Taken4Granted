@@ -1,0 +1,34 @@
+{
+  "sources": [
+    {
+      "id": "grants_gov_sustainability",
+      "name": "Grants.gov — Energy, Environment, Agriculture, Rural Development, Business, Natural Resources, Community Development",
+      "kind": "grants_gov",
+      "fundingCategories": ["EN", "ENV", "AG", "RD", "BC", "NR", "CD"],
+      "fetchDetails": true
+    },
+    {
+      "id": "grants_gov_rural_keywords",
+      "name": "Grants.gov — rural / sustainability keyword sweep",
+      "kind": "grants_gov",
+      "keywords": ["rural business", "rural energy", "sustainability", "clean energy"],
+      "fetchDetails": true
+    },
+    {
+      "id": "ca_grants_portal",
+      "name": "California Grants Portal (grants.ca.gov open data)",
+      "kind": "ca_grants"
+    },
+    {
+      "id": "example_state_rss",
+      "name": "Example state agency RSS feed (disabled — copy this block for any state feed)",
+      "kind": "rss",
+      "url": "https://example.gov/grants/feed.xml",
+      "level": "state",
+      "states": ["WA"],
+      "agency": "Example State Department of Commerce",
+      "defaultCategories": ["business"],
+      "enabled": false
+    }
+  ]
+}
