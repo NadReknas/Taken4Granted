@@ -5,7 +5,7 @@ Automated aggregator and alert service for state and federal sustainability / ru
 - **Scheduled ingestion worker** pulls open + forecasted notices daily from Grants.gov and the California Grants Portal (plus a generic RSS/Atom adapter), normalises deadlines, eligibility and award ranges, and indexes them in PostgreSQL.
 - **Alert engine** matches new opportunities against each subscriber's saved criteria (states, applicant type, category, keywords, award range) and sends one deduplicated email digest per user via Resend.
 - **Public directory** — fast, server-rendered, SEO-friendly search with clear deadlines and direct official application links.
-- **Billing** — single $29/month plan, strict 7-day trial with card up front, Stripe Checkout + Billing Portal, webhook-driven access gating (`users.has_access`).
+- **Billing** — single $19/month plan (`PRICE_MONTHLY_USD`), strict 7-day trial with card up front, Stripe Checkout + Billing Portal, webhook-driven access gating (`users.has_access`).
 
 ## Stack
 
@@ -67,7 +67,7 @@ Starts `db`, `api` (:4000), `worker` and `web` (:3000). Migrations run automatic
 
 ## Stripe setup
 
-1. Create a product with a recurring **$29 / month** price → set `STRIPE_PRICE_ID`.
+1. Create a product with a recurring **$19 / month** price (must match `PRICE_MONTHLY_USD`) → set `STRIPE_PRICE_ID`.
 2. Enable the [Customer Portal](https://dashboard.stripe.com/settings/billing/portal) and allow cancellation / payment-method updates there. The app never implements its own cancel flow.
 3. Add a webhook endpoint `POST https://<api-host>/webhooks/stripe` subscribed to:
    `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`,

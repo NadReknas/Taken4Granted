@@ -28,6 +28,7 @@ const schema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   STRIPE_PRICE_ID: z.string().optional(),
   TRIAL_DAYS: z.coerce.number().default(7),
+  PRICE_MONTHLY_USD: z.coerce.number().default(19),
 
   INGEST_CRON: z.string().default("0 6 * * *"),
   DIGEST_CRON: z.string().default("0 13 * * *"),

@@ -6,7 +6,7 @@ import { requireUser } from "./alerts.js";
 export async function registerBillingRoutes(app: FastifyInstance): Promise<void> {
   app.get("/billing/config", async () => ({
     configured: billingConfigured(),
-    priceMonthlyUsd: 29,
+    priceMonthlyUsd: config().PRICE_MONTHLY_USD,
     trialDays: config().TRIAL_DAYS,
   }));
 

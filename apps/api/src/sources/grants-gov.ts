@@ -53,6 +53,8 @@ export const synopsisSchema = z.object({
   applicantTypes: z.array(idDesc).optional(),
   fundingActivityCategories: z.array(idDesc).optional(),
   agencyName: z.string().optional().nullable(),
+  agencyDetails: z.object({ agencyName: z.string().optional().nullable() }).optional().nullable(),
+  topAgencyDetails: z.object({ agencyName: z.string().optional().nullable() }).optional().nullable(),
 });
 
 export const detailResponseSchema = z.object({
@@ -139,7 +141,8 @@ export function normalizeHit(
     sourceId,
     externalId: hit.id,
     title: stripHtml(hit.title) ?? hit.title,
-    agency: detail?.agencyName ?? hit.agency ?? null,
+    // synopsis.agencyName is frequently the contact person; agencyDetails carries the real agency.
+    agency: detail?.agencyDetails?.agencyName ?? detail?.topAgencyDetails?.agencyName ?? hit.agency ?? detail?.agencyName ?? null,
     level: "federal",
     states: [],
     entityTypes,
