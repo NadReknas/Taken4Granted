@@ -1,6 +1,6 @@
-# Grant & Incentive Radar
+# Grant Retriever
 
-Automated aggregator and alert service for state and federal sustainability / rural business grants.
+Fetches every open state and federal sustainability / rural business grant daily and brings the matches to your inbox. Live at https://www.grantretriever.com.
 
 - **Scheduled ingestion worker** pulls open + forecasted notices daily from Grants.gov and the California Grants Portal (plus a generic RSS/Atom adapter), normalises deadlines, eligibility and award ranges, and indexes them in PostgreSQL.
 - **Alert engine** matches new opportunities against each subscriber's saved criteria (states, applicant type, category, keywords, award range) and sends one deduplicated email digest per user via Resend.
@@ -30,7 +30,7 @@ Requirements: Node 20+, Docker (for Postgres) or any PostgreSQL 14+.
 
 ```bash
 cp .env.example .env            # edit SESSION_SECRET at minimum
-docker run -d --name gr-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=grant_radar postgres:16-alpine
+docker run -d --name gr-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=grant_retriever postgres:16-alpine
 npm install
 npm run migrate                 # applies apps/api/src/db/migrations/*.sql (also runs on API/worker boot)
 npm run ingest                  # one-off pull from all enabled sources (~1–2 min)

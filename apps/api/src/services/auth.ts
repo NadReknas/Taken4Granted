@@ -35,10 +35,10 @@ export async function requestMagicLink(rawEmail: string, opts: { redirect?: stri
 
   await emailProvider().send({
     to: email,
-    subject: "Your sign-in link for Grant & Incentive Radar",
+    subject: "Your sign-in link for Grant Retriever",
     text: `Click to sign in (valid ${cfg.MAGIC_LINK_TTL_MINUTES} minutes):\n\n${url.toString()}\n\nIf you did not request this, ignore this email.`,
     html: layout(
-      "Sign in to Grant & Incentive Radar",
+      "Sign in to Grant Retriever",
       `<p>Click the button below to sign in. This link is valid for ${cfg.MAGIC_LINK_TTL_MINUTES} minutes and can be used once.</p>
        <p><a href="${escapeHtml(url.toString())}" style="display:inline-block;background:#166534;color:#fff;text-decoration:none;padding:12px 20px;border-radius:6px;font-weight:600">Sign in</a></p>
        <p style="color:#6b7280;font-size:13px">If you did not request this, you can safely ignore this email.</p>`,

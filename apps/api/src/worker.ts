@@ -6,7 +6,7 @@ import { runMigrations } from "./db/migrate.js";
 import { closePool, getPool } from "./db/pool.js";
 import { runJob } from "./jobs/index.js";
 
-process.env.SERVICE_NAME ??= "grant-radar-worker";
+process.env.SERVICE_NAME ??= "grant-retriever-worker";
 
 async function main() {
   const cfg = config();

@@ -16,11 +16,12 @@ export default async function HomePage() {
       <section className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Every open sustainability &amp; rural business grant, in one radar.
+            We fetch the grants. You do the winning.
           </h1>
           <p className="mt-4 max-w-xl text-lg text-stone-700">
-            We pull open notices from Grants.gov and state grant portals every day, normalise deadlines, eligibility and
-            award sizes, and link you straight to the official application.
+            Every morning Grant Retriever runs through Grants.gov and state grant portals, brings back every open
+            sustainability and rural business grant with deadlines, eligibility and award sizes, and links you straight
+            to the official application.
           </p>
           <form action="/grants" method="get" className="mt-6 flex max-w-xl gap-2">
             <input name="q" className="input" placeholder="Search e.g. solar, water efficiency, rural broadband" aria-label="Search grants" />
@@ -50,11 +51,11 @@ export default async function HomePage() {
       <Section title="Closing soon" href="/grants?deadlineWithinDays=45&sort=deadline" items={closing} />
       <Section title="Newly listed" href="/grants?sort=newest" items={newest} />
 
-      <section className="card flex flex-col items-start gap-3 bg-emerald-50 sm:flex-row sm:items-center sm:justify-between">
+      <section className="card flex flex-col items-start gap-3 bg-amber-50 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Stop checking portals. Get a digest instead.</h2>
+          <h2 className="text-lg font-semibold">Stop checking portals. Let the retriever fetch.</h2>
           <p className="text-sm text-stone-700">
-            Save your state, applicant type and award range. New matches land in your inbox — $19/month after a 7-day trial.
+            Save your state, applicant type and award range. New matches land in your inbox every morning — $19/month after a 7-day trial.
           </p>
         </div>
         <Link href="/pricing" className="btn-primary">Start free trial</Link>
@@ -77,7 +78,7 @@ function Section({ title, href, items }: { title: string; href: string; items: {
     <section>
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-xl font-semibold">{title}</h2>
-        <Link href={href} className="text-sm text-emerald-700 hover:underline">View all →</Link>
+        <Link href={href} className="text-sm text-green-800 hover:underline">View all →</Link>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {items.items.map((o) => <OpportunityCard key={o.id} o={o} />)}

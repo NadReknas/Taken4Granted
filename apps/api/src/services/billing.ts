@@ -146,7 +146,7 @@ export async function notifyTrialWillEnd(sub: Stripe.Subscription, log: Logger =
   const price = `$${config().PRICE_MONTHLY_USD}/month`;
   await emailProvider().send({
     to: user.email,
-    subject: "Your Grant Radar trial ends soon",
+    subject: "Your Grant Retriever trial ends soon",
     text: `Your free trial ends ${when}. Your card on file will be charged ${price} afterwards. Manage or cancel any time: ${portal}`,
     html: layout(
       "Your free trial ends soon",

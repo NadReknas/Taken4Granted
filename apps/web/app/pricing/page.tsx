@@ -26,13 +26,13 @@ export default async function PricingPage() {
             <li>Direct links to the official application</li>
           </ul>
         </div>
-        <div className="card border-emerald-600 ring-1 ring-emerald-600">
-          <h2 className="text-lg font-semibold">Radar alerts</h2>
+        <div className="card border-green-700 ring-1 ring-green-700">
+          <h2 className="text-lg font-semibold">Retriever alerts</h2>
           <p className="text-3xl font-bold">
             ${cfg.priceMonthlyUsd}
             <span className="text-base font-normal text-stone-500">/month</span>
           </p>
-          <p className="text-sm text-emerald-800">{cfg.trialDays}-day free trial · card required · cancel anytime</p>
+          <p className="text-sm text-amber-900">{cfg.trialDays}-day free trial · card required · cancel anytime</p>
           <ul className="mt-4 space-y-2 text-sm text-stone-700">
             <li>Unlimited saved criteria: states, applicant type, categories, keywords, award range</li>
             <li>Daily email digest of new matches — one email, no noise</li>

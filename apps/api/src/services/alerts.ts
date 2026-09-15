@@ -122,7 +122,7 @@ export interface DigestSection {
 
 export function renderDigest(sections: DigestSection[], appUrl: string): { subject: string; html: string; text: string } {
   const total = sections.reduce((n, s) => n + s.matches.length, 0);
-  const subject = `${total} new grant ${total === 1 ? "opportunity" : "opportunities"} matching your alerts`;
+  const subject = `Fetched ${total} new grant ${total === 1 ? "opportunity" : "opportunities"} for you`;
   const textParts: string[] = [];
   const htmlParts: string[] = [];
   for (const s of sections) {

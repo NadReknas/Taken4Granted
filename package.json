@@ -1,5 +1,5 @@
 {
-  "name": "grant-radar",
+  "name": "grant-retriever",
   "private": true,
   "workspaces": ["apps/*"],
   "scripts": {
