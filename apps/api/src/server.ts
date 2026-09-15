@@ -4,7 +4,7 @@ import { logger } from "./lib/logger.js";
 import { runMigrations } from "./db/migrate.js";
 import { closePool } from "./db/pool.js";
 
-process.env.SERVICE_NAME ??= "grant-radar-api";
+process.env.SERVICE_NAME ??= "grant-retriever-api";
 
 async function main() {
   const cfg = config();

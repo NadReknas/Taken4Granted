@@ -91,7 +91,7 @@ export function AlertForm({ meta, initial, onSubmit, onCancel }: Props) {
               type="button"
               key={e.value}
               onClick={() => toggleIn("entityTypes", e.value)}
-              className={`badge cursor-pointer ${d.entityTypes.includes(e.value) ? "border-emerald-600 bg-emerald-600 text-white" : "border-stone-300 bg-white"}`}
+              className={`badge cursor-pointer ${d.entityTypes.includes(e.value) ? "border-green-700 bg-green-700 text-white" : "border-stone-300 bg-white"}`}
             >
               {e.label}
             </button>
@@ -107,7 +107,7 @@ export function AlertForm({ meta, initial, onSubmit, onCancel }: Props) {
               type="button"
               key={c}
               onClick={() => toggleIn("categories", c)}
-              className={`badge cursor-pointer ${d.categories.includes(c) ? "border-emerald-600 bg-emerald-600 text-white" : "border-stone-300 bg-white"}`}
+              className={`badge cursor-pointer ${d.categories.includes(c) ? "border-green-700 bg-green-700 text-white" : "border-stone-300 bg-white"}`}
             >
               {titleCase(c)}
             </button>

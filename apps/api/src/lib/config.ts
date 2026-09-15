@@ -22,7 +22,7 @@ const schema = z.object({
 
   EMAIL_PROVIDER: z.enum(["resend", "console"]).default("console"),
   RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().default("Grant Radar <alerts@example.com>"),
+  EMAIL_FROM: z.string().default("Grant Retriever <alerts@grantretriever.com>"),
 
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),

@@ -3,7 +3,7 @@ import type { FastifyBaseLogger } from "fastify";
 
 export const loggerOptions: LoggerOptions = {
   level: process.env.LOG_LEVEL ?? "info",
-  base: { service: process.env.SERVICE_NAME ?? "grant-radar" },
+  base: { service: process.env.SERVICE_NAME ?? "grant-retriever" },
   timestamp: pino.stdTimeFunctions.isoTime,
   formatters: { level: (label) => ({ level: label }) },
   redact: ["req.headers.authorization", "req.headers.cookie"],

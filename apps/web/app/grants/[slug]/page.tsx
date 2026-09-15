@@ -65,7 +65,7 @@ export default async function GrantPage({ params }: { params: Promise<{ slug: st
             <span className="badge border-stone-300 bg-white">{o.level === "federal" ? "Federal" : `State · ${o.states.join(", ")}`}</span>
             <span className="badge border-stone-300 bg-white">{titleCase(o.status)}</span>
             {o.categories.map((c) => (
-              <Link key={c} href={`/grants?categories=${c}`} className="badge border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100">
+              <Link key={c} href={`/grants?categories=${c}`} className="badge border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100">
                 {titleCase(c)}
               </Link>
             ))}
@@ -122,7 +122,7 @@ export default async function GrantPage({ params }: { params: Promise<{ slug: st
             Source: {o.source_id.replaceAll("_", " ")} · ID {o.external_id} · last verified {formatDate(o.last_seen_at)}
           </p>
         </div>
-        <div className="card bg-emerald-50 text-sm">
+        <div className="card bg-amber-50 text-sm">
           <p className="font-semibold">Want the next one like this in your inbox?</p>
           <p className="mt-1 text-stone-700">Set alerts by state, applicant type and award range.</p>
           <Link href="/pricing" className="btn-primary mt-3 w-full">Start 7-day trial</Link>

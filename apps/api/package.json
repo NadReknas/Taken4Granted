@@ -1,5 +1,5 @@
 {
-  "name": "@grant-radar/api",
+  "name": "@grant-retriever/api",
   "version": "1.0.0",
   "private": true,
   "type": "module",

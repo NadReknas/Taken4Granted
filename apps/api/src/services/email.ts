@@ -65,13 +65,13 @@ export function escapeHtml(s: string): string {
 }
 
 export function layout(title: string, bodyHtml: string): string {
-  return `<!doctype html><html><body style="margin:0;background:#f6f7f9;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#111">
+  return `<!doctype html><html><body style="margin:0;background:#fffbeb;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1c1917">
 <div style="max-width:600px;margin:0 auto;padding:24px">
-  <div style="font-weight:700;font-size:18px;margin-bottom:16px">Grant &amp; Incentive Radar</div>
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px">
+  <div style="font-weight:700;font-size:18px;margin-bottom:16px;color:#166534">Grant Retriever</div>
+  <div style="background:#fff;border:1px solid #fde68a;border-radius:8px;padding:24px">
     <h1 style="font-size:20px;margin:0 0 16px">${escapeHtml(title)}</h1>
     ${bodyHtml}
   </div>
-  <p style="color:#6b7280;font-size:12px;margin-top:16px">You receive this because you have an account at Grant &amp; Incentive Radar. Manage alerts or unsubscribe from your dashboard.</p>
+  <p style="color:#78716c;font-size:12px;margin-top:16px">You receive this because you have an account at Grant Retriever. Manage alerts or unsubscribe from your dashboard.</p>
 </div></body></html>`;
 }

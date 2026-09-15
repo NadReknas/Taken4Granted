@@ -4,11 +4,11 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: grant_radar
+      POSTGRES_DB: grant_retriever
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d grant_radar"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d grant_retriever"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -21,7 +21,7 @@ services:
       target: api
     env_file: .env
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/grant_radar
+      DATABASE_URL: postgres://postgres:postgres@db:5432/grant_retriever
       APP_URL: ${APP_URL:-http://localhost:8080}
       API_URL: ${API_URL:-http://localhost:4000}
     ports:
@@ -38,7 +38,7 @@ services:
     command: ["node", "dist/worker.js"]
     env_file: .env
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/grant_radar
+      DATABASE_URL: postgres://postgres:postgres@db:5432/grant_retriever
       APP_URL: ${APP_URL:-http://localhost:8080}
     depends_on:
       db:
