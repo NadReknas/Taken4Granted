@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import "./globals.css";
+import { Analytics } from "@/components/Analytics";
 import { AuthNav } from "@/components/AuthNav";
 import { Logo } from "@/components/Logo";
 
 const APP_URL = process.env.APP_URL ?? "http://localhost:3000";
+
+// Runtime env (POSTHOG_KEY) must not be inlined at build time.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
@@ -16,9 +21,16 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const posthogKey = process.env.POSTHOG_KEY;
+  const posthogHost = process.env.POSTHOG_HOST ?? "https://us.i.posthog.com";
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
+        {posthogKey && (
+          <Suspense fallback={null}>
+            <Analytics token={posthogKey} host={posthogHost} />
+          </Suspense>
+        )}
         <header className="border-b border-amber-200 bg-amber-50">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
             <Link href="/" className="flex items-center gap-2 font-semibold text-stone-900">
