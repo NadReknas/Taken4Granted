@@ -220,7 +220,7 @@ function SubscriptionCard({ user, billing, onPortal }: { user: User; billing: Bi
         <p className="text-xs uppercase tracking-wide text-stone-500">Subscription</p>
         <p className="text-lg font-semibold">{label[status] ?? titleCase(status)}</p>
         <p className="text-sm text-stone-600">
-          {status === "trialing" && user.trialEndsAt && `Trial ends ${formatDate(user.trialEndsAt)}${user.cancelAtPeriodEnd ? " (will not renew)" : " — then $29/month"}`}
+          {status === "trialing" && user.trialEndsAt && `Trial ends ${formatDate(user.trialEndsAt)}${user.cancelAtPeriodEnd ? " (will not renew)" : ` — then $${billing?.priceMonthlyUsd ?? 19}/month`}`}
           {status === "active" && user.currentPeriodEnd && `${user.cancelAtPeriodEnd ? "Ends" : "Renews"} ${formatDate(user.currentPeriodEnd)}`}
           {status === "past_due" && "Update your card in the billing portal to keep alerts running."}
           {status === "none" && "Start a 7-day trial to save alerts and receive digests."}

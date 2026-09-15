@@ -88,10 +88,12 @@ describe("Grants.gov adapter", () => {
       estimatedFunding: "50000000",
       responseDateStr: "10/15/2026",
       postingDateStr: "08/01/2026",
-      agencyName: "Rural Business-Cooperative Service",
+      agencyName: "Jane Doe\nGrants Management Specialist",
+      agencyDetails: { agencyName: "Rural Business-Cooperative Service" },
     };
     const o = normalizeHit(hit, detail, "grants_gov");
     expect(o.title).toBe("Rural Energy for America – REAP");
+    expect(o.agency).toBe("Rural Business-Cooperative Service");
     expect(o.level).toBe("federal");
     expect(o.entityTypes).toEqual(["small_business", "any"]);
     expect(o.categories).toContain("energy");

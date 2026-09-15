@@ -143,13 +143,14 @@ export async function notifyTrialWillEnd(sub: Stripe.Subscription, log: Logger =
   const ends = toDate(sub.trial_end);
   const when = ends ? ends.toLocaleDateString("en-US", { month: "long", day: "numeric" }) : "in 3 days";
   const portal = `${config().APP_URL}/dashboard`;
+  const price = `$${config().PRICE_MONTHLY_USD}/month`;
   await emailProvider().send({
     to: user.email,
     subject: "Your Grant Radar trial ends soon",
-    text: `Your free trial ends ${when}. Your card on file will be charged $29/month afterwards. Manage or cancel any time: ${portal}`,
+    text: `Your free trial ends ${when}. Your card on file will be charged ${price} afterwards. Manage or cancel any time: ${portal}`,
     html: layout(
       "Your free trial ends soon",
-      `<p>Your 7-day trial ends <strong>${escapeHtml(when)}</strong>. After that your card on file is charged <strong>$29/month</strong> and your alerts keep flowing.</p>
+      `<p>Your 7-day trial ends <strong>${escapeHtml(when)}</strong>. After that your card on file is charged <strong>${price}</strong> and your alerts keep flowing.</p>
        <p>Want to cancel? No problem — it takes one click. <a href="${escapeHtml(portal)}">Manage subscription</a></p>`,
     ),
   });

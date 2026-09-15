@@ -3,7 +3,7 @@ import { apiGet, type BillingConfig } from "@/lib/api";
 import { SubscribeButton } from "@/components/SubscribeButton";
 
 export const metadata: Metadata = {
-  title: "Pricing — grant alerts for $29/month",
+  title: "Pricing — grant alerts for $19/month",
   description: "One plan. Unlimited saved alert criteria, daily email digests of matching state and federal grants. 7-day free trial, cancel anytime.",
 };
 
