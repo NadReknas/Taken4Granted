@@ -1,6 +1,6 @@
 # Grant Retriever
 
-Fetches every open state and federal sustainability / rural business grant daily and brings the matches to your inbox. Live at https://grantretriever.com.
+Fetches every open state and federal sustainability / rural business grant daily and brings the matches to your inbox. Live at https://www.grantretriever.com.
 
 - **Scheduled ingestion worker** pulls open + forecasted notices daily from Grants.gov and the California Grants Portal (plus a generic RSS/Atom adapter), normalises deadlines, eligibility and award ranges, and indexes them in PostgreSQL.
 - **Alert engine** matches new opportunities against each subscriber's saved criteria (states, applicant type, category, keywords, award range) and sends one deduplicated email digest per user via Resend.
