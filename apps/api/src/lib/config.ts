@@ -19,6 +19,18 @@ const schema = z.object({
   SESSION_SECRET: z.string().min(32),
   SESSION_TTL_DAYS: z.coerce.number().default(30),
   MAGIC_LINK_TTL_MINUTES: z.coerce.number().default(15),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  /** Comma-separated emails granted the admin role on sign-in. */
+  ADMIN_EMAILS: z
+    .string()
+    .optional()
+    .transform((v) =>
+      (v ?? "")
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean),
+    ),
 
   EMAIL_PROVIDER: z.enum(["resend", "console"]).default("console"),
   RESEND_API_KEY: z.string().optional(),
@@ -53,4 +65,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 export function config(): Config {
   if (!cached) cached = loadConfig();
   return cached;
+}
+
+/** Test hook: re-read process.env on next `config()` call. */
+export function resetConfig(): void {
+  cached = undefined;
 }

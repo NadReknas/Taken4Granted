@@ -106,6 +106,12 @@ For Fly.io, use the same three processes: `fly launch --dockerfile Dockerfile --
 - Stale/expired opportunities are marked `closed`, never deleted, so public URLs stay stable.
 - Add sources in `apps/api/config/sources.json` (kinds: `grants_gov`, `ca_grants`, `rss`); no code change needed.
 
+## Accounts, admins and test users
+
+- Sign-in is passwordless: email magic link, or "Continue with Google" when `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are set (redirect URI `${APP_URL}/api/auth/google/callback`). Both methods resolve to the same account by email.
+- Emails listed in `ADMIN_EMAILS` become admins at their next sign-in. Admins have full alert access without a subscription and can open `/admin`.
+- `/admin` lists users, sources and job runs, and lets you **comp** any email (free access to alerts/digests, no Stripe) — that's how to create test accounts. Add the email there first, then sign in with it.
+
 ## Environment variables
 
 See [`.env.example`](.env.example) — every variable is documented there and validated on boot by `apps/api/src/lib/config.ts`.

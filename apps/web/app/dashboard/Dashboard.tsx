@@ -100,9 +100,12 @@ export function Dashboard() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Your retriever</h1>
-          <p className="text-sm text-stone-600">{user.email}</p>
+          <p className="text-sm text-stone-600">{user.name ? `${user.name} · ${user.email}` : user.email}</p>
         </div>
-        <button onClick={logout} className="btn-secondary">Sign out</button>
+        <div className="flex gap-2">
+          {user.role === "admin" && <Link href="/admin" className="btn-secondary">Admin</Link>}
+          <button onClick={logout} className="btn-secondary">Sign out</button>
+        </div>
       </div>
 
       <SubscriptionCard user={user} billing={billing} onPortal={portal} />
@@ -214,6 +217,16 @@ function SubscriptionCard({ user, billing, onPortal }: { user: User; billing: Bi
     incomplete_expired: "Checkout expired",
     paused: "Paused",
   };
+  const free = user.role === "admin" || user.comped;
+  if (free && !user.hasBillingAccount) {
+    return (
+      <section className="card">
+        <p className="text-xs uppercase tracking-wide text-stone-500">Subscription</p>
+        <p className="text-lg font-semibold">{user.role === "admin" ? "Admin — full access" : "Complimentary access"}</p>
+        <p className="text-sm text-stone-600">Alerts and digests are enabled on this account without a subscription.</p>
+      </section>
+    );
+  }
   return (
     <section className="card flex flex-wrap items-center justify-between gap-4">
       <div>

@@ -8,6 +8,7 @@ import { getPool } from "./db/pool.js";
 import { registerAuthRoutes } from "./routes/auth.js";
 import { registerOpportunityRoutes } from "./routes/opportunities.js";
 import { registerAlertRoutes } from "./routes/alerts.js";
+import { registerAdminRoutes } from "./routes/admin.js";
 import { registerBillingRoutes } from "./routes/billing.js";
 import { registerJobRoutes } from "./routes/jobs.js";
 import { getUserBySession, SESSION_COOKIE, type UserRow } from "./services/auth.js";
@@ -79,6 +80,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await registerAuthRoutes(app);
   await registerOpportunityRoutes(app);
   await registerAlertRoutes(app);
+  await registerAdminRoutes(app);
   await registerBillingRoutes(app);
   await registerJobRoutes(app);
 
