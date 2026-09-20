@@ -88,8 +88,7 @@ export function Dashboard() {
 
   async function logout() {
     await api("/auth/logout", { method: "POST", body: "{}" });
-    router.push("/");
-    router.refresh();
+    window.location.assign("/login");
   }
 
   if (loading) return <p className="text-stone-600">Loading…</p>;
