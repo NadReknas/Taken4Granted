@@ -128,3 +128,19 @@ export function toQuery(params: Record<string, string | number | string[] | unde
   const s = q.toString();
   return s ? `?${s}` : "";
 }
+
+export interface StateCoverage {
+  code: string;
+  name: string;
+  state: number;
+  local: number;
+  federalTargeted: number;
+}
+
+export interface Coverage {
+  federalNationwide: number;
+  statesWithStateGrants: number;
+  totalStates: number;
+  states: StateCoverage[];
+  updatedAt: string;
+}
