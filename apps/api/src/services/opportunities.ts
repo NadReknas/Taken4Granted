@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { query, one } from "../db/pool.js";
-import { CATEGORIES, ENTITY_TYPES, LEVELS, STATE_CODES, STATUSES, type OpportunityRow } from "../domain/opportunity.js";
+import { CATEGORIES, ENTITY_TYPES, LEVELS, STATE_CODES, STATUSES, US_STATES, type OpportunityRow } from "../domain/opportunity.js";
 
 const csv = <T extends z.ZodTypeAny>(inner: T) =>
   z.preprocess((v) => {
@@ -122,5 +122,67 @@ export async function directoryStats(): Promise<DirectoryStats> {
     closingSoon: Number(counts?.closing_soon ?? 0),
     addedThisWeek: Number(counts?.added_week ?? 0),
     sources,
+  };
+}
+
+export interface StateCoverage {
+  code: string;
+  name: string;
+  /** Open state-level grants (level = 'state') targeting this state. */
+  state: number;
+  /** Open local/county grants targeting this state. */
+  local: number;
+  /** Open federal grants restricted to this state (not nationwide). */
+  federalTargeted: number;
+}
+
+export interface Coverage {
+  /** Open federal grants any state can apply to (no state restriction). */
+  federalNationwide: number;
+  statesWithStateGrants: number;
+  totalStates: number;
+  states: StateCoverage[];
+  updatedAt: string;
+}
+
+/** Codes in US_STATES that are not one of the 50 states. */
+const TERRITORIES = new Set(["DC", "PR"]);
+
+const OPEN = `status = 'open' AND (deadline IS NULL OR deadline >= now())`;
+
+export async function coverage(): Promise<Coverage> {
+  const [nationwide, rows] = await Promise.all([
+    one<{ n: string }>(
+      `SELECT count(*)::text AS n FROM opportunities
+       WHERE ${OPEN} AND level = 'federal' AND cardinality(states) = 0`,
+    ),
+    query<{ code: string; state: string; local: string; federal: string }>(
+      `SELECT s.code,
+              count(*) FILTER (WHERE o.level = 'state')::text   AS state,
+              count(*) FILTER (WHERE o.level = 'local')::text   AS local,
+              count(*) FILTER (WHERE o.level = 'federal')::text AS federal
+       FROM unnest($1::text[]) AS s(code)
+       LEFT JOIN opportunities o ON o.states @> ARRAY[s.code] AND ${OPEN}
+       GROUP BY s.code`,
+      [STATE_CODES],
+    ),
+  ]);
+  const byCode = new Map(rows.map((r) => [r.code, r]));
+  const states = STATE_CODES.map((code) => {
+    const r = byCode.get(code);
+    return {
+      code,
+      name: US_STATES[code]!,
+      state: Number(r?.state ?? 0),
+      local: Number(r?.local ?? 0),
+      federalTargeted: Number(r?.federal ?? 0),
+    };
+  });
+  return {
+    federalNationwide: Number(nationwide?.n ?? 0),
+    statesWithStateGrants: states.filter((s) => s.state > 0).length,
+    totalStates: STATE_CODES.filter((c) => !TERRITORIES.has(c)).length,
+    states,
+    updatedAt: new Date().toISOString(),
   };
 }

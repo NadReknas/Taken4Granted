@@ -7,6 +7,7 @@ import {
   US_STATES,
 } from "../domain/opportunity.js";
 import {
+  coverage,
   directoryStats,
   getOpportunityBySlug,
   listSlugsForSitemap,
@@ -37,6 +38,11 @@ export async function registerOpportunityRoutes(app: FastifyInstance): Promise<v
   app.get("/stats", async (_req, reply) => {
     reply.header("cache-control", "public, max-age=300");
     return directoryStats();
+  });
+
+  app.get("/coverage", async (_req, reply) => {
+    reply.header("cache-control", "public, max-age=600, s-maxage=3600");
+    return coverage();
   });
 
   app.get("/meta", async (_req, reply) => {
