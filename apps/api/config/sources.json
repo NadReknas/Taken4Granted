@@ -20,6 +20,40 @@
       "kind": "ca_grants"
     },
     {
+      "id": "pa_dced_programs",
+      "name": "Pennsylvania DCED program catalogue (dced.pa.gov)",
+      "kind": "rss",
+      "url": "https://dced.pa.gov/programs/feed/",
+      "level": "state",
+      "states": ["PA"],
+      "agency": "Pennsylvania Department of Community & Economic Development",
+      "defaultCategories": ["business", "community_development"]
+    },
+    {
+      "id": "sd_goed_programs",
+      "name": "South Dakota GOED programs (sdgoed.com)",
+      "kind": "wp_rest",
+      "siteUrl": "https://sdgoed.com",
+      "postType": "program",
+      "level": "state",
+      "states": ["SD"],
+      "agency": "South Dakota Governor's Office of Economic Development",
+      "defaultCategories": ["business"]
+    },
+    {
+      "id": "ks_commerce_programs",
+      "name": "Kansas Department of Commerce programs (kansascommerce.gov)",
+      "kind": "wp_rest",
+      "siteUrl": "https://www.kansascommerce.gov",
+      "postType": "program",
+      "level": "state",
+      "states": ["KS"],
+      "agency": "Kansas Department of Commerce",
+      "includeTitle": "grant|fund|loan|incentive|tax credit|rebate",
+      "excludeTitle": "form|portal|recipients|roster|award winners|awards \\d|how to|panels|materials|public comment|archive|year [1-5]\\b|training|desk|contract",
+      "defaultCategories": ["business"]
+    },
+    {
       "id": "example_state_rss",
       "name": "Example state agency RSS feed (disabled — copy this block for any state feed)",
       "kind": "rss",

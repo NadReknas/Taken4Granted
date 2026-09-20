@@ -5,6 +5,7 @@ import { z } from "zod";
 import { GrantsGovSource } from "./grants-gov.js";
 import { RssSource } from "./rss.js";
 import { CaGrantsSource } from "./ca-grants.js";
+import { WpRestSource } from "./wp-rest.js";
 import type { SourceAdapter, SourceConfig } from "./types.js";
 import { STATE_CODES } from "../domain/opportunity.js";
 
@@ -30,6 +31,19 @@ export const sourceConfigSchema = z.discriminatedUnion("kind", [
     defaultEntityTypes: z.array(z.string()).optional(),
     defaultCategories: z.array(z.string()).optional(),
   }),
+  z.object({
+    ...base,
+    kind: z.literal("wp_rest"),
+    siteUrl: z.string().url(),
+    postType: z.string().regex(/^[a-z0-9_-]+$/),
+    level: z.enum(["state", "local", "other"]),
+    states: z.array(z.enum(STATE_CODES)).min(1),
+    agency: z.string().optional(),
+    includeTitle: z.string().optional(),
+    excludeTitle: z.string().optional(),
+    defaultEntityTypes: z.array(z.string()).optional(),
+    defaultCategories: z.array(z.string()).optional(),
+  }),
 ]);
 
 export const sourcesFileSchema = z.object({ sources: z.array(sourceConfigSchema) });
@@ -42,6 +56,8 @@ export function buildAdapter(cfg: SourceConfig): SourceAdapter {
       return new RssSource(cfg);
     case "ca_grants":
       return new CaGrantsSource(cfg);
+    case "wp_rest":
+      return new WpRestSource(cfg);
   }
 }
 
