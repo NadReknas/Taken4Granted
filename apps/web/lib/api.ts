@@ -68,6 +68,33 @@ export interface User {
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
   hasBillingAccount: boolean;
+  role: "user" | "admin";
+  comped: boolean;
+  name: string | null;
+  avatarUrl: string | null;
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string | null;
+  role: "user" | "admin";
+  comped: boolean;
+  hasAccess: boolean;
+  subscriptionStatus: string;
+  trialEndsAt: string | null;
+  currentPeriodEnd: string | null;
+  hasBillingAccount: boolean;
+  signInMethod: "google" | "email";
+  createdAt: string;
+  lastLoginAt: string | null;
+  alertCount: number;
+}
+
+export interface AdminOverview {
+  counts: { users: number; with_access: number; comped: number; paying: number; opportunities: number; alerts: number };
+  sources: Stats["sources"];
+  jobs: Array<{ id: string; job: string; started_at: string; finished_at: string | null; status: string; detail: unknown }>;
 }
 
 export interface BillingConfig {

@@ -15,9 +15,49 @@ export interface UserRow {
   current_period_end: Date | null;
   cancel_at_period_end: boolean;
   has_access: boolean;
+  role: "user" | "admin";
+  comped: boolean;
+  google_sub: string | null;
+  name: string | null;
+  avatar_url: string | null;
 }
 
 export const SESSION_COOKIE = "gr_session";
+
+/** Paid features are open to subscribers/trialists, comped accounts, and admins. */
+export function hasAccess(u: UserRow): boolean {
+  return u.has_access || u.comped || u.role === "admin";
+}
+
+/** SQL fragment mirroring `hasAccess` for bulk queries; `alias` is the users table alias. */
+export function hasAccessSql(alias = "u"): string {
+  return `(${alias}.has_access OR ${alias}.comped OR ${alias}.role = 'admin')`;
+}
+
+export function isAdminEmail(email: string): boolean {
+  return config().ADMIN_EMAILS.includes(normalizeEmail(email));
+}
+
+/** Creates the user on first sign-in; promotes to admin when listed in ADMIN_EMAILS. */
+export async function upsertUserOnLogin(
+  rawEmail: string,
+  profile: { googleSub?: string; name?: string | null; avatarUrl?: string | null } = {},
+): Promise<UserRow | null> {
+  const email = normalizeEmail(rawEmail);
+  const admin = isAdminEmail(email);
+  return one<UserRow>(
+    `INSERT INTO users (email, last_login_at, role, google_sub, name, avatar_url)
+     VALUES ($1, now(), $2, $3, $4, $5)
+     ON CONFLICT (email) DO UPDATE SET
+       last_login_at = now(),
+       role = CASE WHEN $2 = 'admin' THEN 'admin' ELSE users.role END,
+       google_sub = COALESCE($3, users.google_sub),
+       name = COALESCE($4, users.name),
+       avatar_url = COALESCE($5, users.avatar_url)
+     RETURNING *`,
+    [email, admin ? "admin" : "user", profile.googleSub ?? null, profile.name ?? null, profile.avatarUrl ?? null],
+  );
+}
 
 export async function requestMagicLink(rawEmail: string, opts: { redirect?: string } = {}): Promise<void> {
   const cfg = config();
@@ -63,12 +103,7 @@ export async function verifyMagicLink(token: string): Promise<VerifyResult | nul
   );
   if (!link) return null;
 
-  const user = await one<UserRow>(
-    `INSERT INTO users (email, last_login_at) VALUES ($1, now())
-     ON CONFLICT (email) DO UPDATE SET last_login_at = now()
-     RETURNING *`,
-    [link.email],
-  );
+  const user = await upsertUserOnLogin(link.email);
   if (!user) return null;
   const session = await createSession(user.id);
   return { user, ...session };
@@ -108,6 +143,7 @@ export async function getUserById(id: string): Promise<UserRow | null> {
 export async function purgeExpiredAuthRows(): Promise<void> {
   await query(`DELETE FROM magic_links WHERE expires_at < now() - interval '1 day'`);
   await query(`DELETE FROM sessions WHERE expires_at < now()`);
+  await query(`DELETE FROM oauth_states WHERE expires_at < now()`);
 }
 
 export function publicUser(u: UserRow) {
@@ -115,7 +151,11 @@ export function publicUser(u: UserRow) {
     id: u.id,
     email: u.email,
     subscriptionStatus: u.subscription_status,
-    hasAccess: u.has_access,
+    hasAccess: hasAccess(u),
+    comped: u.comped,
+    role: u.role,
+    name: u.name,
+    avatarUrl: u.avatar_url,
     trialEndsAt: u.trial_ends_at,
     currentPeriodEnd: u.current_period_end,
     cancelAtPeriodEnd: u.cancel_at_period_end,

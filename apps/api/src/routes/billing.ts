@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { config } from "../lib/config.js";
 import { billingConfigured, constructEvent, createCheckoutSession, createPortalSession, handleStripeEvent } from "../services/billing.js";
+import { hasAccess } from "../services/auth.js";
 import { requireUser } from "./alerts.js";
 
 export async function registerBillingRoutes(app: FastifyInstance): Promise<void> {
@@ -13,7 +14,7 @@ export async function registerBillingRoutes(app: FastifyInstance): Promise<void>
   app.post("/billing/checkout", async (req, reply) => {
     if (!requireUser(req, reply)) return;
     if (!billingConfigured()) return reply.status(503).send({ error: "Billing is not configured" });
-    if (req.user!.has_access) return reply.status(400).send({ error: "You already have an active subscription" });
+    if (hasAccess(req.user!)) return reply.status(400).send({ error: "You already have an active subscription" });
     return { url: await createCheckoutSession(req.user!) };
   });
 

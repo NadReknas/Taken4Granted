@@ -23,7 +23,7 @@ export function captureEmail(): CapturingEmailProvider {
 }
 
 export async function truncateAll(): Promise<void> {
-  await query(`TRUNCATE users, magic_links, sessions, opportunities, alert_criteria, digests, stripe_events, job_runs CASCADE`);
+  await query(`TRUNCATE users, magic_links, sessions, oauth_states, opportunities, alert_criteria, digests, stripe_events, job_runs CASCADE`);
 }
 
 export async function teardown(): Promise<void> {

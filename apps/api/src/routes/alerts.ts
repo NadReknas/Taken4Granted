@@ -9,6 +9,7 @@ import {
   matchAlert,
   updateAlert,
 } from "../services/alerts.js";
+import { hasAccess } from "../services/auth.js";
 
 const MAX_ALERTS_PER_USER = 25;
 
@@ -20,10 +21,19 @@ export function requireUser(req: FastifyRequest, reply: FastifyReply): boolean {
   return true;
 }
 
+export function requireAdmin(req: FastifyRequest, reply: FastifyReply): boolean {
+  if (!requireUser(req, reply)) return false;
+  if (req.user!.role !== "admin") {
+    reply.status(403).send({ error: "Admin only" });
+    return false;
+  }
+  return true;
+}
+
 /** Access gating: alerts are the paid feature. Directory browsing stays public. */
 export function requireAccess(req: FastifyRequest, reply: FastifyReply): boolean {
   if (!requireUser(req, reply)) return false;
-  if (!req.user!.has_access) {
+  if (!hasAccess(req.user!)) {
     reply.status(402).send({ error: "An active subscription or trial is required", code: "SUBSCRIPTION_REQUIRED" });
     return false;
   }

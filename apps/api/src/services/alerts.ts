@@ -5,7 +5,7 @@ import { config } from "../lib/config.js";
 import { logger, type Logger } from "../lib/logger.js";
 import { emailProvider, escapeHtml, layout } from "./email.js";
 import { buildFilters, searchParamsSchema } from "./opportunities.js";
-import type { UserRow } from "./auth.js";
+import { hasAccessSql, type UserRow } from "./auth.js";
 
 export const alertInputSchema = z.object({
   name: z.string().trim().min(1).max(80),
@@ -168,7 +168,7 @@ export async function runDigests(log: Logger = logger, now = new Date()): Promis
   const users = await query<UserRow & { last_digest_at: Date | null }>(
     `SELECT u.*, (SELECT max(sent_at) FROM digests d WHERE d.user_id = u.id) AS last_digest_at
      FROM users u
-     WHERE u.has_access = true AND EXISTS (SELECT 1 FROM alert_criteria a WHERE a.user_id = u.id AND a.active)`,
+     WHERE ${hasAccessSql("u")} AND EXISTS (SELECT 1 FROM alert_criteria a WHERE a.user_id = u.id AND a.active)`,
   );
   for (const user of users) {
     result.usersConsidered++;
