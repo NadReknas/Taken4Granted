@@ -36,7 +36,24 @@ export interface CaGrantsSourceConfig extends SourceConfigBase {
   resourceId?: string;
 }
 
-export type SourceConfig = GrantsGovSourceConfig | RssSourceConfig | CaGrantsSourceConfig;
+export interface WpRestSourceConfig extends SourceConfigBase {
+  kind: "wp_rest";
+  /** WordPress site root, e.g. https://sdgoed.com */
+  siteUrl: string;
+  /** REST post type slug, e.g. "program" */
+  postType: string;
+  level: "state" | "local" | "other";
+  states: string[];
+  agency?: string;
+  /** Case-insensitive regex; posts whose title doesn't match are dropped. */
+  includeTitle?: string;
+  /** Case-insensitive regex; posts whose title matches are dropped. */
+  excludeTitle?: string;
+  defaultEntityTypes?: string[];
+  defaultCategories?: string[];
+}
+
+export type SourceConfig = GrantsGovSourceConfig | RssSourceConfig | CaGrantsSourceConfig | WpRestSourceConfig;
 
 export interface SourceAdapter {
   readonly config: SourceConfig;
