@@ -8,7 +8,7 @@ export default function LoginPage() {
   return (
     <div className="mx-auto max-w-md">
       <h1 className="text-2xl font-bold">Sign in</h1>
-      <p className="mt-1 text-sm text-stone-600">No password. We&apos;ll email you a one-time link.</p>
+      <p className="mt-1 text-sm text-stone-600">No password. Use Google or weNo password. We&apos;ll email you a one-time link.apos;ll email you a one-time link.</p>
       <Suspense>
         <LoginForm />
       </Suspense>
