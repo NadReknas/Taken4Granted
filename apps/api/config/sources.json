@@ -137,6 +137,20 @@
       "defaultCategories": ["business"]
     },
     {
+      "id": "il_dceo_incentives",
+      "name": "Illinois DCEO incentives and tax credit programs (dceo.illinois.gov)",
+      "kind": "html_list",
+      "urls": ["https://dceo.illinois.gov/businesshelp/incentivesandtaxcredits.html"],
+      "itemSelector": "a.cmp-image-card",
+      "titleSelector": ".cmp-image-card__text-title",
+      "linkSelector": "a",
+      "summarySelector": ".cmp-image-card__text p:not(:empty)",
+      "level": "state",
+      "states": ["IL"],
+      "agency": "Illinois Department of Commerce and Economic Opportunity",
+      "defaultCategories": ["business"]
+    },
+    {
       "id": "example_state_rss",
       "name": "Example state agency RSS feed (disabled — copy this block for any state feed)",
       "kind": "rss",
