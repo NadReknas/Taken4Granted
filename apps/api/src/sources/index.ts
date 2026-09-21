@@ -6,6 +6,7 @@ import { GrantsGovSource } from "./grants-gov.js";
 import { RssSource } from "./rss.js";
 import { CaGrantsSource } from "./ca-grants.js";
 import { WpRestSource } from "./wp-rest.js";
+import { HtmlListSource } from "./html-list.js";
 import type { SourceAdapter, SourceConfig } from "./types.js";
 import { STATE_CODES } from "../domain/opportunity.js";
 
@@ -44,6 +45,29 @@ export const sourceConfigSchema = z.discriminatedUnion("kind", [
     defaultEntityTypes: z.array(z.string()).optional(),
     defaultCategories: z.array(z.string()).optional(),
   }),
+  z.object({
+    ...base,
+    kind: z.literal("html_list"),
+    urls: z.array(z.string().url()).min(1),
+    itemSelector: z.string().min(1),
+    titleSelector: z.string().optional(),
+    linkSelector: z.string().optional(),
+    summarySelector: z.string().optional(),
+    summaryFollowing: z.boolean().optional(),
+    metaSelector: z.string().optional(),
+    pagination: z
+      .object({ param: z.string().min(1), first: z.number().int().min(0).optional(), maxPages: z.number().int().min(1).optional() })
+      .optional(),
+    level: z.enum(["state", "local", "other"]),
+    states: z.array(z.enum(STATE_CODES)).min(1),
+    agency: z.string().optional(),
+    includeTitle: z.string().optional(),
+    excludeTitle: z.string().optional(),
+    includeLink: z.string().optional(),
+    excludeLink: z.string().optional(),
+    defaultEntityTypes: z.array(z.string()).optional(),
+    defaultCategories: z.array(z.string()).optional(),
+  }),
 ]);
 
 export const sourcesFileSchema = z.object({ sources: z.array(sourceConfigSchema) });
@@ -58,6 +82,8 @@ export function buildAdapter(cfg: SourceConfig): SourceAdapter {
       return new CaGrantsSource(cfg);
     case "wp_rest":
       return new WpRestSource(cfg);
+    case "html_list":
+      return new HtmlListSource(cfg);
   }
 }
 
