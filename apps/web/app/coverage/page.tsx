@@ -127,15 +127,20 @@ export default async function CoveragePage() {
         <h2 className="text-xl font-semibold">Federal-only for now ({missing.length})</h2>
         <p className="mt-1 text-sm text-stone-600">
           Residents of these states still see every nationwide federal grant, plus any federal program targeted at their state.
+          Until we index them, each state&apos;s own program listing is linked below.
         </p>
-        <p className="mt-3 text-sm leading-7 text-stone-700">
-          {missing.map((s, i) => (
-            <span key={s.code}>
-              <Link href={`/grants?states=${s.code}`} className="hover:underline">{s.name}</Link>
-              {i < missing.length - 1 ? " · " : ""}
-            </span>
+        <ul className="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+          {missing.map((s) => (
+            <li key={s.code} className="flex flex-wrap items-baseline gap-x-2">
+              <Link href={`/grants?states=${s.code}`} className="font-medium hover:underline">{s.name}</Link>
+              {s.portal && (
+                <a href={s.portal.url} target="_blank" rel="noopener noreferrer" className="text-xs text-green-800 hover:underline">
+                  {s.portal.name} ↗
+                </a>
+              )}
+            </li>
           ))}
-        </p>
+        </ul>
       </section>
 
       <p className="mt-8 text-xs text-stone-500">
