@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "See which states Grant Retriever has state-level grant programs for, plus nationwide federal opportunities every state can apply to.",
 };
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 /** Tile-grid map: [code, column, row] in a 12x8 grid (standard US tile layout). */
 const TILES: Array<[string, number, number]> = [
