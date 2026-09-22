@@ -159,7 +159,17 @@ describe("html_list adapter", () => {
         "wa_commerce_programs",
         "co_oedit_programs",
         "mi_medc_programs",
+        "il_dceo_incentives",
+        "in_iedc_programs",
+        "mo_ded_programs",
+        "nc_commerce_grants",
+        "or_business_oregon_programs",
       ]),
     );
+  });
+
+  it("loads the configured wp_rest state sources", async () => {
+    const ids = (await loadSources()).filter((s) => s.config.kind === "wp_rest").map((s) => s.config.id);
+    expect(ids).toEqual(expect.arrayContaining(["wi_wedc_programs", "nv_goed_programs"]));
   });
 });
