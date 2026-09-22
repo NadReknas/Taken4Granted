@@ -1,0 +1,63 @@
+/**
+ * Official state pages listing state-run grant / incentive programs. Shown to
+ * users for states we do not (yet) index so they can browse the source directly.
+ */
+export interface StatePortal {
+  name: string;
+  url: string;
+}
+
+export const STATE_PORTALS: Record<string, StatePortal> = {
+  AL: { name: "Alabama Department of Commerce", url: "https://www.madeinalabama.com/why-alabama/incentives/" },
+  AK: { name: "Alaska Dept. of Commerce, Community & Economic Development", url: "https://www.commerce.alaska.gov/web/ded/" },
+  AZ: { name: "Arizona Commerce Authority", url: "https://www.azcommerce.com/programs/" },
+  AR: { name: "Arkansas Economic Development Commission", url: "https://www.arkansasedc.com/business-development/incentives" },
+  CA: { name: "California Grants Portal", url: "https://www.grants.ca.gov/" },
+  CO: { name: "Colorado OEDIT programs & funding", url: "https://oedit.colorado.gov/programs-and-funding" },
+  CT: { name: "Connecticut DECD business programs", url: "https://portal.ct.gov/decd" },
+  DE: { name: "Delaware Division of Small Business", url: "https://business.delaware.gov/incentives/" },
+  DC: { name: "DC Office of Partnerships & Grant Services", url: "https://opgs.dc.gov/" },
+  FL: { name: "FloridaCommerce", url: "https://www.floridajobs.org/" },
+  GA: { name: "Georgia Department of Economic Development", url: "https://www.georgia.org/competitive-advantages/incentives" },
+  HI: { name: "Hawaii DBEDT", url: "https://invest.hawaii.gov/business-programs/" },
+  ID: { name: "Idaho Commerce", url: "https://commerce.idaho.gov/incentives-and-financing/" },
+  IL: { name: "Illinois DCEO incentives & tax credits", url: "https://dceo.illinois.gov/businesshelp/incentivesandtaxcredits.html" },
+  IN: { name: "Indiana Economic Development Corporation", url: "https://iedc.in.gov/programs" },
+  IA: { name: "Iowa Economic Development Authority", url: "https://www.iowaeda.com/programs/" },
+  KS: { name: "Kansas Department of Commerce", url: "https://www.kansascommerce.gov/program/" },
+  KY: { name: "Kentucky Cabinet for Economic Development", url: "https://newkentuckyhome.ky.gov/" },
+  LA: { name: "Louisiana Economic Development", url: "https://www.opportunitylouisiana.gov/business-incentives" },
+  ME: { name: "Maine DECD", url: "https://www.maine.gov/decd/business-development/" },
+  MD: { name: "Maryland Department of Commerce", url: "https://commerce.maryland.gov/fund" },
+  MA: { name: "Massachusetts Executive Office of Economic Development", url: "https://www.mass.gov/orgs/executive-office-of-economic-development" },
+  MI: { name: "Michigan Economic Development Corporation", url: "https://www.michiganbusiness.org/data-list---filter/" },
+  MN: { name: "Minnesota DEED business financing", url: "https://mn.gov/deed/business/financing-business/" },
+  MS: { name: "Mississippi Development Authority", url: "https://mississippi.org/business/incentives/" },
+  MO: { name: "Missouri Department of Economic Development", url: "https://ded.mo.gov/programs" },
+  MT: { name: "Montana Department of Commerce", url: "https://commerce.mt.gov/Business/" },
+  NE: { name: "Nebraska Department of Economic Development", url: "https://opportunity.nebraska.gov/programs/" },
+  NV: { name: "Nevada Governor's Office of Economic Development", url: "https://goed.nv.gov/programs/" },
+  NH: { name: "New Hampshire Division of Economic Development", url: "https://www.nheconomy.com/" },
+  NJ: { name: "New Jersey Economic Development Authority", url: "https://www.njeda.gov/" },
+  NM: { name: "New Mexico Economic Development Department", url: "https://edd.newmexico.gov/business-development/" },
+  NY: { name: "New York Empire State Development", url: "https://esd.ny.gov/doing-business-ny" },
+  NC: { name: "North Carolina Department of Commerce grants & incentives", url: "https://www.commerce.nc.gov/grants-incentives" },
+  ND: { name: "North Dakota Department of Commerce", url: "https://www.commerce.nd.gov/economic-development-finance" },
+  OH: { name: "Ohio Department of Development", url: "https://development.ohio.gov/business/state-incentives" },
+  OK: { name: "Oklahoma Department of Commerce", url: "https://www.okcommerce.gov/doing-business/business-relocation-expansion/incentives/" },
+  OR: { name: "Business Oregon", url: "https://www.oregon.gov/biz/programs/Pages/default.aspx" },
+  PA: { name: "Pennsylvania DCED programs", url: "https://dced.pa.gov/programs/" },
+  RI: { name: "Rhode Island Commerce", url: "https://commerceri.com/" },
+  SC: { name: "South Carolina Department of Commerce", url: "https://www.sccommerce.com/incentives" },
+  SD: { name: "South Dakota Governor's Office of Economic Development", url: "https://sdgoed.com/" },
+  TN: { name: "Tennessee Department of Economic & Community Development", url: "https://www.tn.gov/ecd/rural-development.html" },
+  TX: { name: "Texas Economic Development & Tourism incentives", url: "https://gov.texas.gov/business/page/incentives" },
+  UT: { name: "Utah Governor's Office of Economic Opportunity", url: "https://business.utah.gov/" },
+  VT: { name: "Vermont Agency of Commerce & Community Development", url: "https://accd.vermont.gov/economic-development" },
+  VA: { name: "Virginia Economic Development Partnership", url: "https://www.vedp.org/incentives" },
+  WA: { name: "Washington Department of Commerce programs", url: "https://www.commerce.wa.gov/programs/" },
+  WV: { name: "West Virginia Department of Economic Development", url: "https://westvirginia.gov/business-assistance/" },
+  WI: { name: "Wisconsin Economic Development Corporation", url: "https://wedc.org/programs/" },
+  WY: { name: "Wyoming Business Council", url: "https://wyomingbusiness.org/" },
+  PR: { name: "Puerto Rico Department of Economic Development & Commerce", url: "https://www.ddec.pr.gov/" },
+};

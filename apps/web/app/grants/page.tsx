@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { apiGet, toQuery, type Meta, type SearchResult } from "@/lib/api";
+import { apiGet, toQuery, type Coverage, type Meta, type SearchResult } from "@/lib/api";
 import { OpportunityCard } from "@/components/OpportunityCard";
 import { SearchFilters } from "@/components/SearchFilters";
 import { titleCase } from "@/lib/format";
@@ -39,10 +39,13 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 
 export default async function GrantsPage({ searchParams }: { searchParams: Promise<Params> }) {
   const v = pick(await searchParams);
-  const [meta, result] = await Promise.all([
+  const [meta, result, coverage] = await Promise.all([
     apiGet<Meta>("/meta", 86400),
     apiGet<SearchResult>(`/opportunities${toQuery({ ...v, pageSize: 24 })}`),
+    apiGet<Coverage>("/coverage", 3600),
   ]);
+  const stateFilter = v.states && !v.states.includes(",") ? coverage.states.find((s) => s.code === v.states) : undefined;
+  const portal = stateFilter && stateFilter.state + stateFilter.local === 0 ? stateFilter.portal : null;
   const pages = Math.max(1, Math.ceil(result.total / result.pageSize));
   const pageLink = (p: number) => `/grants${toQuery({ ...v, page: p > 1 ? String(p) : undefined })}`;
 
@@ -53,6 +56,16 @@ export default async function GrantsPage({ searchParams }: { searchParams: Promi
         <p className="text-sm text-stone-600">Updated daily. Deadlines shown in UTC; confirm on the official notice.</p>
       </div>
       <SearchFilters meta={meta} values={v} />
+      {stateFilter && portal && (
+        <div className="rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          We don&apos;t index {stateFilter.name}&apos;s state-run programs yet, so results below are federal only. Browse them
+          directly at{" "}
+          <a href={portal.url} target="_blank" rel="noopener noreferrer" className="font-medium underline">
+            {portal.name} ↗
+          </a>
+          . See <Link href="/coverage" className="underline">coverage</Link> for all states.
+        </div>
+      )}
       <p className="text-sm text-stone-600">
         {result.total.toLocaleString("en-US")} result{result.total === 1 ? "" : "s"}
         {result.total > 0 && ` · page ${result.page} of ${pages}`}

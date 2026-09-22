@@ -135,6 +135,7 @@ export interface StateCoverage {
   state: number;
   local: number;
   federalTargeted: number;
+  portal: { name: string; url: string } | null;
 }
 
 export interface Coverage {

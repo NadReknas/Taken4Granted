@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { query, one } from "../db/pool.js";
 import { CATEGORIES, ENTITY_TYPES, LEVELS, STATE_CODES, STATUSES, US_STATES, type OpportunityRow } from "../domain/opportunity.js";
+import { STATE_PORTALS, type StatePortal } from "../domain/state-portals.js";
 
 const csv = <T extends z.ZodTypeAny>(inner: T) =>
   z.preprocess((v) => {
@@ -134,6 +135,8 @@ export interface StateCoverage {
   local: number;
   /** Open federal grants restricted to this state (not nationwide). */
   federalTargeted: number;
+  /** Official state page listing its own programs, for browsing directly. */
+  portal: StatePortal | null;
 }
 
 export interface Coverage {
@@ -176,6 +179,7 @@ export async function coverage(): Promise<Coverage> {
       state: Number(r?.state ?? 0),
       local: Number(r?.local ?? 0),
       federalTargeted: Number(r?.federal ?? 0),
+      portal: STATE_PORTALS[code] ?? null,
     };
   });
   return {
