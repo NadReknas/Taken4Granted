@@ -67,7 +67,7 @@ export function escapeHtml(s: string): string {
 export function layout(title: string, bodyHtml: string): string {
   return `<!doctype html><html><body style="margin:0;background:#fffbeb;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1c1917">
 <div style="max-width:600px;margin:0 auto;padding:24px">
-  <div style="font-weight:700;font-size:18px;margin-bottom:16px;color:#166534">Grant Retriever</div>
+  <div style="margin-bottom:16px"><img src="${config().APP_URL}/brand/email-header.png" width="300" height="50" alt="Grant Retriever" style="display:block;width:300px;height:auto;border:0"></div>
   <div style="background:#fff;border:1px solid #fde68a;border-radius:8px;padding:24px">
     <h1 style="font-size:20px;margin:0 0 16px">${escapeHtml(title)}</h1>
     ${bodyHtml}

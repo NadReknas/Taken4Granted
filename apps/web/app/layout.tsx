@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import "./globals.css";
@@ -11,12 +11,20 @@ const APP_URL = process.env.APP_URL ?? "http://localhost:3000";
 // Runtime env (POSTHOG_KEY) must not be inlined at build time.
 export const dynamic = "force-dynamic";
 
+export const viewport: Viewport = { themeColor: "#016630" };
+
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: { default: "Grant Retriever", template: "%s · Grant Retriever" },
   description:
     "Grant Retriever fetches every open state and federal sustainability and rural business grant daily — deadlines, eligibility and official application links — and brings the matches to your inbox.",
-  openGraph: { type: "website", siteName: "Grant Retriever" },
+  openGraph: {
+    type: "website",
+    siteName: "Grant Retriever",
+    images: [{ url: "/brand/og.png", width: 1200, height: 630, alt: "Grant Retriever — never miss a grant again" }],
+  },
+  twitter: { card: "summary_large_image", images: ["/brand/og.png"] },
+  manifest: "/manifest.webmanifest",
   robots: { index: true, follow: true },
 };
 
