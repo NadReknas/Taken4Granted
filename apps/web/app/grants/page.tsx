@@ -4,6 +4,7 @@ import { apiGet, toQuery, type Coverage, type Meta, type SearchResult } from "@/
 import { OpportunityCard } from "@/components/OpportunityCard";
 import { SearchFilters } from "@/components/SearchFilters";
 import { SaveSearchButton } from "@/components/SaveSearchButton";
+import { SignInForMore } from "@/components/SignInForMore";
 import { titleCase } from "@/lib/format";
 
 export const revalidate = 300;
@@ -47,7 +48,9 @@ export default async function GrantsPage({ searchParams }: { searchParams: Promi
   ]);
   const stateFilter = v.states && !v.states.includes(",") ? coverage.states.find((s) => s.code === v.states) : undefined;
   const portal = stateFilter && stateFilter.state + stateFilter.local === 0 ? stateFilter.portal : null;
-  const pages = Math.max(1, Math.ceil(result.total / result.pageSize));
+  const capped = result.limit !== undefined && result.total > result.limit;
+  const visibleTotal = capped ? result.limit! : result.total;
+  const pages = Math.max(1, Math.ceil(visibleTotal / result.pageSize));
   const pageLink = (p: number) => `/grants${toQuery({ ...v, page: p > 1 ? String(p) : undefined })}`;
 
   return (
@@ -69,6 +72,7 @@ export default async function GrantsPage({ searchParams }: { searchParams: Promi
       )}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-stone-600">
+          {capped ? `Showing the first ${visibleTotal} of ` : ""}
           {result.total.toLocaleString("en-US")} result{result.total === 1 ? "" : "s"}
           {result.total > 0 && ` · page ${result.page} of ${pages}`}
         </p>
@@ -83,6 +87,7 @@ export default async function GrantsPage({ searchParams }: { searchParams: Promi
           {result.items.map((o) => <OpportunityCard key={o.id} o={o} />)}
         </div>
       )}
+      {capped && result.page >= pages && <SignInForMore total={result.total} shown={visibleTotal} query={toQuery(v)} />}
       {pages > 1 && (
         <nav className="flex items-center justify-center gap-3 text-sm" aria-label="Pagination">
           {result.page > 1 && <Link href={pageLink(result.page - 1)} className="btn-secondary">← Previous</Link>}

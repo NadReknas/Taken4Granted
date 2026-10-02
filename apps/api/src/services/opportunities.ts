@@ -30,6 +30,17 @@ export interface SearchResult {
   total: number;
   page: number;
   pageSize: number;
+  /** Present when the caller is anonymous: only the first `limit` results are served. */
+  limit?: number;
+}
+
+export const ANON_RESULT_LIMIT = 50;
+
+/** Clamps pagination so an anonymous caller never reads past the first `limit` results. */
+export function capSearchParams(p: SearchParams, limit = ANON_RESULT_LIMIT): SearchParams {
+  const offset = (p.page - 1) * p.pageSize;
+  if (offset >= limit) return { ...p, pageSize: 0 };
+  return { ...p, pageSize: Math.min(p.pageSize, limit - offset) };
 }
 
 /**
