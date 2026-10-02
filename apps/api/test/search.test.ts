@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildFilters, searchParamsSchema } from "../src/services/opportunities.js";
+import { buildFilters, capSearchParams, searchParamsSchema } from "../src/services/opportunities.js";
 
 describe("search parameter parsing", () => {
   it("parses CSV filters and applies defaults", () => {
@@ -24,5 +24,14 @@ describe("filter SQL", () => {
     expect(where.join(" AND ")).toContain("amount_max IS NULL OR amount_max >=");
     expect(where.join(" AND ")).toContain("amount_min IS NULL OR amount_min <=");
     expect(params).toEqual(["open", ["IA"], 1000, 50000]);
+  });
+});
+
+describe("anonymous result cap", () => {
+  it("trims the page that crosses the limit and empties pages past it", () => {
+    expect(capSearchParams(searchParamsSchema.parse({ pageSize: 24, page: 1 }), 50).pageSize).toBe(24);
+    expect(capSearchParams(searchParamsSchema.parse({ pageSize: 24, page: 3 }), 50).pageSize).toBe(2);
+    expect(capSearchParams(searchParamsSchema.parse({ pageSize: 24, page: 4 }), 50).pageSize).toBe(0);
+    expect(capSearchParams(searchParamsSchema.parse({ pageSize: 100 }), 50).pageSize).toBe(50);
   });
 });

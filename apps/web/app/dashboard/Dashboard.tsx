@@ -107,13 +107,26 @@ export function Dashboard() {
       {error && <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
 
       {tab === "matches" && <MatchesTab user={user} alerts={alerts} billing={billing} onGo={go} />}
-      {tab === "search" && meta && <SearchTab meta={meta} user={user} onSaved={load} />}
+      {tab === "search" && meta && <SearchTab meta={meta} user={user} onSaved={load} initial={initialSearch(params)} />}
       {tab === "saved" && <SavedTab />}
       {tab === "alerts" && meta && <AlertsTab user={user} alerts={alerts} meta={meta} reload={load} setError={setError} />}
       {tab === "digests" && <DigestsTab user={user} />}
       {tab === "account" && <SubscriptionCard user={user} billing={billing} setError={setError} />}
     </div>
   );
+}
+
+type SearchValues = Record<string, string | undefined>;
+
+const SEARCH_KEYS = ["q", "states", "entityTypes", "categories", "levels", "minAmount", "deadlineWithinDays", "sort"];
+
+function initialSearch(params: URLSearchParams): SearchValues {
+  const v: SearchValues = { sort: "deadline" };
+  for (const k of SEARCH_KEYS) {
+    const val = params.get(k);
+    if (val) v[k] = val;
+  }
+  return v;
 }
 
 function greeting(user: User): string {
@@ -196,10 +209,8 @@ function MatchesTab({ user, alerts, billing, onGo }: { user: User; alerts: Alert
 
 /* ---------------- Search ---------------- */
 
-type SearchValues = Record<string, string | undefined>;
-
-function SearchTab({ meta, user, onSaved }: { meta: Meta; user: User; onSaved: () => Promise<void> }) {
-  const [v, setV] = useState<SearchValues>({ sort: "deadline" });
+function SearchTab({ meta, user, onSaved, initial }: { meta: Meta; user: User; onSaved: () => Promise<void>; initial: SearchValues }) {
+  const [v, setV] = useState<SearchValues>(initial);
   const [page, setPage] = useState(1);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [busy, setBusy] = useState(false);

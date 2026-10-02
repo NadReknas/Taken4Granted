@@ -29,6 +29,8 @@ export interface SearchResult {
   total: number;
   page: number;
   pageSize: number;
+  /** Set when the API served an anonymous, capped result set. */
+  limit?: number;
 }
 
 export interface Meta {

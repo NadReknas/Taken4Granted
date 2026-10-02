@@ -7,6 +7,8 @@ import {
   US_STATES,
 } from "../domain/opportunity.js";
 import {
+  ANON_RESULT_LIMIT,
+  capSearchParams,
   coverage,
   directoryStats,
   getOpportunityBySlug,
@@ -19,8 +21,16 @@ export async function registerOpportunityRoutes(app: FastifyInstance): Promise<v
   app.get("/opportunities", async (req, reply) => {
     const parsed = searchParamsSchema.safeParse(req.query);
     if (!parsed.success) return reply.status(400).send({ error: "Invalid query", issues: parsed.error.issues });
+    if (req.user) {
+      reply.header("cache-control", "private, no-store");
+      return searchOpportunities(parsed.data);
+    }
     reply.header("cache-control", "public, max-age=60, s-maxage=300");
-    return searchOpportunities(parsed.data);
+    const capped = capSearchParams(parsed.data);
+    const result = capped.pageSize > 0
+      ? await searchOpportunities(capped)
+      : { ...(await searchOpportunities({ ...parsed.data, pageSize: 1 })), items: [] };
+    return { ...result, page: parsed.data.page, pageSize: parsed.data.pageSize, limit: ANON_RESULT_LIMIT };
   });
 
   app.get<{ Params: { slug: string } }>("/opportunities/:slug", async (req, reply) => {
