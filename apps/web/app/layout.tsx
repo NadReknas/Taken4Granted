@@ -5,6 +5,7 @@ import "./globals.css";
 import { Analytics } from "@/components/Analytics";
 import { AuthNav } from "@/components/AuthNav";
 import { Logo } from "@/components/Logo";
+import { SavedProvider } from "@/components/SavedProvider";
 
 const APP_URL = process.env.APP_URL ?? "http://localhost:3000";
 
@@ -34,7 +35,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
-        {posthogKey && (
+        <SavedProvider>
+{posthogKey && (
           <Suspense fallback={null}>
             <Analytics token={posthogKey} host={posthogHost} />
           </Suspense>
@@ -62,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </p>
           </div>
         </footer>
+      </SavedProvider>
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Opportunity } from "@/lib/api";
 import { amountLabel, deadlineLabel, titleCase } from "@/lib/format";
+import { SaveButton } from "./SaveButton";
 
 const TONE: Record<string, string> = {
   urgent: "border-red-200 bg-red-50 text-red-800",
@@ -19,6 +20,7 @@ export function OpportunityCard({ o }: { o: Opportunity }) {
         </span>
         {o.status === "forecasted" && <span className="badge border-violet-200 bg-violet-50 text-violet-800">Forecasted</span>}
         <span className={`badge ${TONE[dl.tone]}`}>{dl.text}</span>
+        <SaveButton id={o.id} />
       </div>
       <h3 className="text-base font-semibold leading-snug">
         <Link href={`/grants/${o.slug}`} className="hover:underline">

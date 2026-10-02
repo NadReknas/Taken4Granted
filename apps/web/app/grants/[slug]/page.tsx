@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { apiGetOrNull, type Opportunity } from "@/lib/api";
 import { amountLabel, deadlineLabel, formatDate, money, titleCase } from "@/lib/format";
 
+import { SaveGrantButton } from "@/components/SaveButton";
+
 export const revalidate = 600;
 
 const ENTITY_LABELS: Record<string, string> = {
@@ -118,6 +120,7 @@ export default async function GrantPage({ params }: { params: Promise<{ slug: st
           <a href={o.apply_url} target="_blank" rel="noopener noreferrer nofollow" className="btn-primary w-full">
             Apply on official site ↗
           </a>
+          <SaveGrantButton id={o.id} />
           <p className="text-xs text-stone-500">
             Source: {o.source_id.replaceAll("_", " ")} · ID {o.external_id} · last verified {formatDate(o.last_seen_at)}
           </p>
