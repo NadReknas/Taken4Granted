@@ -3,6 +3,7 @@ import Link from "next/link";
 import { apiGet, toQuery, type Coverage, type Meta, type SearchResult } from "@/lib/api";
 import { OpportunityCard } from "@/components/OpportunityCard";
 import { SearchFilters } from "@/components/SearchFilters";
+import { SaveSearchButton } from "@/components/SaveSearchButton";
 import { titleCase } from "@/lib/format";
 
 export const revalidate = 300;
@@ -66,10 +67,13 @@ export default async function GrantsPage({ searchParams }: { searchParams: Promi
           . See <Link href="/coverage" className="underline">coverage</Link> for all states.
         </div>
       )}
-      <p className="text-sm text-stone-600">
-        {result.total.toLocaleString("en-US")} result{result.total === 1 ? "" : "s"}
-        {result.total > 0 && ` · page ${result.page} of ${pages}`}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-stone-600">
+          {result.total.toLocaleString("en-US")} result{result.total === 1 ? "" : "s"}
+          {result.total > 0 && ` · page ${result.page} of ${pages}`}
+        </p>
+        <SaveSearchButton values={v} stateNames={meta.states} />
+      </div>
       {result.items.length === 0 ? (
         <div className="card text-center text-stone-600">
           No opportunities match these filters. Try widening the state or category, or <Link href="/grants" className="underline">reset filters</Link>.

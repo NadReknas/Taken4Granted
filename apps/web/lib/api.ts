@@ -145,3 +145,13 @@ export interface Coverage {
   states: StateCoverage[];
   updatedAt: string;
 }
+
+export type MatchedOpportunity = Opportunity & { matched_alerts: Array<{ id: string; name: string }> };
+export type SavedOpportunity = Opportunity & { saved_at: string };
+
+export interface DigestSummary {
+  id: string;
+  sent_at: string;
+  count: number;
+  items: Array<Pick<Opportunity, "id" | "slug" | "title" | "agency" | "deadline" | "deadline_text" | "amount_min" | "amount_max">>;
+}
