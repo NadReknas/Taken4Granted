@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api, ApiError } from "@/lib/client";
+import { trialLabel } from "@/lib/format";
 
-export function SubscribeButton({ configured, label = "Start 30-day free trial" }: { configured: boolean; label?: string }) {
+export function SubscribeButton({ configured, trialDays, label }: { configured: boolean; trialDays: number; label?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +32,7 @@ export function SubscribeButton({ configured, label = "Start 30-day free trial" 
   return (
     <div className="mt-4">
       <button onClick={go} disabled={busy} className="btn-primary w-full">
-        {busy ? "Redirecting to Stripe…" : label}
+        {busy ? "Redirecting to Stripe…" : (label ?? `Start ${trialLabel(trialDays)}`)}
       </button>
       {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
     </div>

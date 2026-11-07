@@ -46,7 +46,7 @@ export function SaveSearchButton({ values, stateNames }: { values: Record<string
   if (state === "paywall")
     return (
       <span className="text-sm text-stone-600">
-        Alerts need a trial or subscription — <Link href="/pricing" className="underline">start a 30-day trial</Link>.
+        Alerts need a trial or subscription — <Link href="/pricing" className="underline">start a free trial</Link>.
       </span>
     );
   return (

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { apiGetOrNull, type Opportunity } from "@/lib/api";
-import { amountLabel, deadlineLabel, formatDate, money, titleCase } from "@/lib/format";
+import { apiGet, apiGetOrNull, type BillingConfig, type Opportunity } from "@/lib/api";
+import { amountLabel, deadlineLabel, formatDate, money, titleCase, trialLabel } from "@/lib/format";
 
 import { SaveGrantButton } from "@/components/SaveButton";
 
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function GrantPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const o = await load(slug);
+  const [o, billing] = await Promise.all([load(slug), apiGet<BillingConfig>("/billing/config", 600)]);
   if (!o) notFound();
   const dl = deadlineLabel(o.deadline, o.deadline_text);
 
@@ -128,7 +128,7 @@ export default async function GrantPage({ params }: { params: Promise<{ slug: st
         <div className="card bg-amber-50 text-sm">
           <p className="font-semibold">Want the next one like this in your inbox?</p>
           <p className="mt-1 text-stone-700">Set alerts by state, applicant type and award range.</p>
-          <Link href="/pricing" className="btn-primary mt-3 w-full">Start 30-day trial</Link>
+          <Link href="/pricing" className="btn-primary mt-3 w-full">Start {trialLabel(billing.trialDays)}</Link>
         </div>
       </aside>
     </article>
