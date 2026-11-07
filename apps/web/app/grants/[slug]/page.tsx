@@ -128,7 +128,7 @@ export default async function GrantPage({ params }: { params: Promise<{ slug: st
         <div className="card bg-amber-50 text-sm">
           <p className="font-semibold">Want the next one like this in your inbox?</p>
           <p className="mt-1 text-stone-700">Set alerts by state, applicant type and award range.</p>
-          <Link href="/pricing" className="btn-primary mt-3 w-full">Start 7-day trial</Link>
+          <Link href="/pricing" className="btn-primary mt-3 w-full">Start 30-day trial</Link>
         </div>
       </aside>
     </article>

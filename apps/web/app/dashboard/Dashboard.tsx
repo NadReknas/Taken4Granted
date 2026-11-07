@@ -160,7 +160,7 @@ function MatchesTab({ user, alerts, billing, onGo }: { user: User; alerts: Alert
   if (!user.hasAccess)
     return (
       <EmptyState title="Start a free trial to get matches" body="Alerts and daily digests need an active trial or subscription. Searching and saving grants is free.">
-        {billing && <SubscribeButton configured={billing.configured} label="Start 7-day free trial" />}
+        {billing && <SubscribeButton configured={billing.configured} label="Start 30-day free trial" />}
         <button onClick={() => onGo("search")} className="btn-secondary">Search grants</button>
       </EmptyState>
     );
@@ -280,7 +280,7 @@ function SearchTab({ meta, user, onSaved, initial }: { meta: Meta; user: User; o
           {saveState === "done" && <span className="text-sm text-green-800">Alert saved — new matches will arrive in your digest.</span>}
           {saveState === "paywall" && !user.hasAccess && (
             <span className="text-sm text-stone-600">
-              Alerts need a trial — <Link href="/pricing" className="underline">start a 7-day trial</Link>.
+              Alerts need a trial — <Link href="/pricing" className="underline">start a 30-day trial</Link>.
             </span>
           )}
           {saveState === "error" && <span className="text-sm text-red-700">Could not save alert.</span>}
@@ -582,13 +582,13 @@ function SubscriptionCard({ user, billing, setError }: { user: User; billing: Bi
               {status === "trialing" && user.trialEndsAt && `Trial ends ${formatDate(user.trialEndsAt)}${user.cancelAtPeriodEnd ? " (will not renew)" : ` — then $${billing?.priceMonthlyUsd ?? 19}/month`}`}
               {status === "active" && user.currentPeriodEnd && `${user.cancelAtPeriodEnd ? "Ends" : "Renews"} ${formatDate(user.currentPeriodEnd)}`}
               {status === "past_due" && "Update your card in the billing portal to keep alerts running."}
-              {status === "none" && "Start a 7-day trial to save alerts and receive digests."}
+              {status === "none" && "Start a 30-day trial to save alerts and receive digests."}
               {(status === "canceled" || status === "unpaid" || status === "incomplete_expired") && "Restart your subscription to resume alerts."}
             </p>
           </div>
           <div className="flex gap-2">
             {user.hasBillingAccount && billing?.configured && <button onClick={portal} className="btn-secondary">Manage billing</button>}
-            {!user.hasAccess && billing && <SubscribeButton configured={billing.configured} label={status === "none" ? "Start 7-day free trial" : "Subscribe"} />}
+            {!user.hasAccess && billing && <SubscribeButton configured={billing.configured} label={status === "none" ? "Start 30-day free trial" : "Subscribe"} />}
           </div>
         </section>
       )}

@@ -5,7 +5,7 @@ Fetches every open state and federal sustainability / rural business grant daily
 - **Scheduled ingestion worker** pulls open + forecasted notices daily from Grants.gov and the California Grants Portal (plus a generic RSS/Atom adapter), normalises deadlines, eligibility and award ranges, and indexes them in PostgreSQL.
 - **Alert engine** matches new opportunities against each subscriber's saved criteria (states, applicant type, category, keywords, award range) and sends one deduplicated email digest per user via Resend.
 - **Public directory** — fast, server-rendered, SEO-friendly search with clear deadlines and direct official application links.
-- **Billing** — single $19/month plan (`PRICE_MONTHLY_USD`), strict 7-day trial with card up front, Stripe Checkout + Billing Portal, webhook-driven access gating (`users.has_access`).
+- **Billing** — single $19/month plan (`PRICE_MONTHLY_USD`), strict 30-day trial with card up front, Stripe Checkout + Billing Portal, webhook-driven access gating (`users.has_access`).
 
 ## Stack
 
@@ -74,7 +74,7 @@ Starts `db`, `api` (:4000), `worker` and `web` (:3000). Migrations run automatic
    `customer.subscription.trial_will_end`, `customer.subscription.deleted` → set `STRIPE_WEBHOOK_SECRET`.
 4. Local testing: `stripe listen --forward-to localhost:4000/webhooks/stripe`.
 
-Lifecycle: Checkout (`mode=subscription`, `trial_period_days=7`, `payment_method_collection=always`) →
+Lifecycle: Checkout (`mode=subscription`, `trial_period_days=30`, `payment_method_collection=always`) →
 `customer.subscription.created` sets `subscription_status=trialing`, `has_access=true` → `trial_will_end` emails a
 reminder 3 days before → `updated` flips to `active` / `past_due` / `unpaid` → `deleted` sets `canceled`,
 `has_access=false`. Access = `trialing | active | past_due`. Events are verified against the raw body and

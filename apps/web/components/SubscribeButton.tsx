@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api, ApiError } from "@/lib/client";
 
-export function SubscribeButton({ configured, label = "Start 7-day free trial" }: { configured: boolean; label?: string }) {
+export function SubscribeButton({ configured, label = "Start 30-day free trial" }: { configured: boolean; label?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

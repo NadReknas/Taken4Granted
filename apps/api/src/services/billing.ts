@@ -150,7 +150,7 @@ export async function notifyTrialWillEnd(sub: Stripe.Subscription, log: Logger =
     text: `Your free trial ends ${when}. Your card on file will be charged ${price} afterwards. Manage or cancel any time: ${portal}`,
     html: layout(
       "Your free trial ends soon",
-      `<p>Your 7-day trial ends <strong>${escapeHtml(when)}</strong>. After that your card on file is charged <strong>${price}</strong> and your alerts keep flowing.</p>
+      `<p>Your free trial ends <strong>${escapeHtml(when)}</strong>. After that your card on file is charged <strong>${price}</strong> and your alerts keep flowing.</p>
        <p>Want to cancel? No problem — it takes one click. <a href="${escapeHtml(portal)}">Manage subscription</a></p>`,
     ),
   });

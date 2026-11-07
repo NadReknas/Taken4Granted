@@ -4,7 +4,7 @@ import { SubscribeButton } from "@/components/SubscribeButton";
 
 export const metadata: Metadata = {
   title: "Pricing — grant alerts for $19/month",
-  description: "One plan. Unlimited saved alert criteria, daily email digests of matching state and federal grants. 7-day free trial, cancel anytime.",
+  description: "One plan. Unlimited saved alert criteria, daily email digests of matching state and federal grants. 30-day free trial, cancel anytime.",
 };
 
 export const dynamic = "force-dynamic";
