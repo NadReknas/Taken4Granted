@@ -1,14 +1,15 @@
 import Link from "next/link";
-import { apiGet, type SearchResult, type Stats } from "@/lib/api";
+import { apiGet, type BillingConfig, type SearchResult, type Stats } from "@/lib/api";
 import { OpportunityCard } from "@/components/OpportunityCard";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [stats, closing, newest] = await Promise.all([
+  const [stats, closing, newest, billing] = await Promise.all([
     apiGet<Stats>("/stats"),
     apiGet<SearchResult>("/opportunities?sort=deadline&deadlineWithinDays=45&pageSize=6"),
     apiGet<SearchResult>("/opportunities?sort=newest&pageSize=6"),
+    apiGet<BillingConfig>("/billing/config"),
   ]);
 
   return (
@@ -55,7 +56,7 @@ export default async function HomePage() {
         <div>
           <h2 className="text-lg font-semibold">Stop checking portals. Let the retriever fetch.</h2>
           <p className="text-sm text-stone-700">
-            Save your state, applicant type and award range. New matches land in your inbox every morning — $19/month after a 30-day trial.
+            Save your state, applicant type and award range. New matches land in your inbox every morning — ${billing.priceMonthlyUsd}/month after a {billing.trialDays}-day free trial.
           </p>
         </div>
         <Link href="/pricing" className="btn-primary">Start free trial</Link>

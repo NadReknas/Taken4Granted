@@ -1,3 +1,8 @@
+/** e.g. "14-day free trial"; just "free trial" when the configured length is unknown. */
+export function trialLabel(days: number | null | undefined): string {
+  return days ? `${days}-day free trial` : "free trial";
+}
+
 export function money(v: string | number | null): string | null {
   if (v == null) return null;
   const n = Number(v);

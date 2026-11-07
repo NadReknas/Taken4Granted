@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { apiGet, type BillingConfig } from "@/lib/api";
 import { SubscribeButton } from "@/components/SubscribeButton";
 
-export const metadata: Metadata = {
-  title: "Pricing — grant alerts for $19/month",
-  description: "One plan. Unlimited saved alert criteria, daily email digests of matching state and federal grants. 30-day free trial, cancel anytime.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cfg = await apiGet<BillingConfig>("/billing/config", 60);
+  return {
+    title: `Pricing — grant alerts for $${cfg.priceMonthlyUsd}/month`,
+    description: `One plan. Unlimited saved alert criteria, daily email digests of matching state and federal grants. ${cfg.trialDays}-day free trial, cancel anytime.`,
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +42,7 @@ export default async function PricingPage() {
             <li>Preview matches instantly before you save</li>
             <li>Manage or cancel yourself in the Stripe billing portal</li>
           </ul>
-          <SubscribeButton configured={cfg.configured} />
+          <SubscribeButton configured={cfg.configured} trialDays={cfg.trialDays} />
         </div>
       </div>
 
