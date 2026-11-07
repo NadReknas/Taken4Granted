@@ -55,7 +55,7 @@ export default async function HomePage() {
         <div>
           <h2 className="text-lg font-semibold">Stop checking portals. Let the retriever fetch.</h2>
           <p className="text-sm text-stone-700">
-            Save your state, applicant type and award range. New matches land in your inbox every morning — $19/month after a 7-day trial.
+            Save your state, applicant type and award range. New matches land in your inbox every morning — $19/month after a 30-day trial.
           </p>
         </div>
         <Link href="/pricing" className="btn-primary">Start free trial</Link>
