@@ -3,6 +3,8 @@ import {
   CATEGORIES,
   ENTITY_TYPES,
   ENTITY_TYPE_LABELS,
+  FUNDING_TYPES,
+  FUNDING_TYPE_LABELS,
   LEVELS,
   US_STATES,
 } from "../domain/opportunity.js";
@@ -61,6 +63,7 @@ export async function registerOpportunityRoutes(app: FastifyInstance): Promise<v
       states: US_STATES,
       entityTypes: ENTITY_TYPES.map((v) => ({ value: v, label: ENTITY_TYPE_LABELS[v] })),
       categories: CATEGORIES,
+      fundingTypes: FUNDING_TYPES.map((v) => ({ value: v, label: FUNDING_TYPE_LABELS[v] })),
       levels: LEVELS,
     };
   });

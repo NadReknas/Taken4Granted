@@ -2,9 +2,9 @@
   "sources": [
     {
       "id": "grants_gov_sustainability",
-      "name": "Grants.gov — Energy, Environment, Agriculture, Rural Development, Business, Natural Resources, Community Development",
+      "name": "Grants.gov — Energy, Environment, Agriculture, Rural Development, Business, Natural Resources, Community Development, Transportation, Infrastructure (IIJA), Disaster Prevention & Relief",
       "kind": "grants_gov",
-      "fundingCategories": ["EN", "ENV", "AG", "RD", "BC", "NR", "CD"],
+      "fundingCategories": ["EN", "ENV", "AG", "RD", "BC", "NR", "CD", "T", "IIJ", "DPR"],
       "fetchDetails": true
     },
     {
@@ -12,6 +12,23 @@
       "name": "Grants.gov — rural / sustainability keyword sweep",
       "kind": "grants_gov",
       "keywords": ["rural business", "rural energy", "sustainability", "clean energy"],
+      "fetchDetails": true
+    },
+    {
+      "id": "federal_register_funding",
+      "name": "Federal Register — funding notices (USDA Rural Development, DOT, DOE, EPA, EDA, SBA disaster loans, FEMA, regional commissions)",
+      "kind": "federal_register",
+      "agencies": [
+        "rural-business-cooperative-service", "rural-utilities-service", "rural-housing-service", "farm-service-agency",
+        "natural-resources-conservation-service", "agricultural-marketing-service", "energy-department",
+        "energy-efficiency-and-renewable-energy-office", "environmental-protection-agency", "transportation-department",
+        "federal-highway-administration", "federal-transit-administration", "federal-railroad-administration",
+        "maritime-administration", "economic-development-administration", "small-business-administration",
+        "federal-emergency-management-agency", "national-telecommunications-and-information-administration",
+        "delta-regional-authority", "denali-commission", "appalachian-regional-commission",
+        "northern-border-regional-commission", "forest-service", "reclamation-bureau", "fish-and-wildlife-service"
+      ],
+      "lookbackDays": 270,
       "fetchDetails": true
     },
     {

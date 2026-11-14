@@ -10,6 +10,9 @@ const TONE: Record<string, string> = {
   none: "border-stone-200 bg-stone-50 text-stone-500",
 };
 
+/** Grants are the norm, so only the other funding types get a badge. */
+const FUNDING_TYPE_BADGE: Record<string, string> = { loan: "Loan", tax_incentive: "Tax incentive", disaster_aid: "Disaster aid" };
+
 export function OpportunityCard({ o }: { o: Opportunity }) {
   const dl = deadlineLabel(o.deadline, o.deadline_text);
   return (
@@ -18,6 +21,9 @@ export function OpportunityCard({ o }: { o: Opportunity }) {
         <span className={`badge ${o.level === "federal" ? "border-blue-200 bg-blue-50 text-blue-800" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
           {o.level === "federal" ? "Federal" : o.states.length ? o.states.join(", ") : titleCase(o.level)}
         </span>
+        {o.funding_types.filter((t) => t !== "grant" && t !== "other").map((t) => (
+          <span key={t} className="badge border-emerald-200 bg-emerald-50 text-emerald-800">{FUNDING_TYPE_BADGE[t] ?? titleCase(t)}</span>
+        ))}
         {o.status === "forecasted" && <span className="badge border-violet-200 bg-violet-50 text-violet-800">Forecasted</span>}
         <span className={`badge ${TONE[dl.tone]}`}>{dl.text}</span>
         <SaveButton id={o.id} />

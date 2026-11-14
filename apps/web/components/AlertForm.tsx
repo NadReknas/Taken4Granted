@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Meta } from "@/lib/api";
+import { DEFAULT_FUNDING_TYPES, type Meta } from "@/lib/api";
 import { titleCase } from "@/lib/format";
 
 export interface AlertDraft {
@@ -10,6 +10,7 @@ export interface AlertDraft {
   entityTypes: string[];
   keywords: string[];
   categories: string[];
+  fundingTypes: string[];
   amountMin: number | null;
   amountMax: number | null;
   includeFederal: boolean;
@@ -22,6 +23,7 @@ const EMPTY: AlertDraft = {
   entityTypes: [],
   keywords: [],
   categories: [],
+  fundingTypes: DEFAULT_FUNDING_TYPES,
   amountMin: null,
   amountMax: null,
   includeFederal: true,
@@ -40,8 +42,12 @@ export function AlertForm({ meta, initial, onSubmit, onCancel }: Props) {
   const [keywords, setKeywords] = useState(initial?.keywords.join(", ") ?? "");
   const [busy, setBusy] = useState(false);
 
-  function toggleIn(key: "states" | "entityTypes" | "categories", v: string) {
-    setD((p) => ({ ...p, [key]: p[key].includes(v) ? p[key].filter((x) => x !== v) : [...p[key], v] }));
+  function toggleIn(key: "states" | "entityTypes" | "categories" | "fundingTypes", v: string) {
+    setD((p) => {
+      const next = p[key].includes(v) ? p[key].filter((x) => x !== v) : [...p[key], v];
+      // An alert must match at least one funding type.
+      return key === "fundingTypes" && next.length === 0 ? p : { ...p, [key]: next };
+    });
   }
 
   async function submit(e: React.FormEvent) {
@@ -110,6 +116,22 @@ export function AlertForm({ meta, initial, onSubmit, onCancel }: Props) {
               className={`badge cursor-pointer ${d.categories.includes(c) ? "border-green-700 bg-green-700 text-white" : "border-stone-300 bg-white"}`}
             >
               {titleCase(c)}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend className="mb-1 text-sm text-stone-600">Funding types</legend>
+        <div className="flex flex-wrap gap-2">
+          {meta.fundingTypes.map((t) => (
+            <button
+              type="button"
+              key={t.value}
+              onClick={() => toggleIn("fundingTypes", t.value)}
+              className={`badge cursor-pointer ${d.fundingTypes.includes(t.value) ? "border-green-700 bg-green-700 text-white" : "border-stone-300 bg-white"}`}
+            >
+              {t.label}
             </button>
           ))}
         </div>

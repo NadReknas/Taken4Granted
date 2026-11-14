@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Meta } from "@/lib/api";
+import { fundingTypesOf, type Meta } from "@/lib/api";
 import { titleCase } from "@/lib/format";
 
 interface Props {
@@ -42,6 +42,17 @@ export function SearchFilters({ meta, values }: Props) {
           ))}
         </select>
       </label>
+      <fieldset className="text-sm sm:col-span-2 lg:col-span-6">
+        <legend className="mb-1 text-stone-600">Funding types</legend>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          {meta.fundingTypes.map((t) => (
+            <label key={t.value} className="flex items-center gap-1.5">
+              <input type="checkbox" name="fundingTypes" value={t.value} defaultChecked={fundingTypesOf(values.fundingTypes).includes(t.value)} />
+              {t.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <label className="text-sm">
         <span className="mb-1 block text-stone-600">Level</span>
         <select name="levels" defaultValue={values.levels ?? ""} className="input">

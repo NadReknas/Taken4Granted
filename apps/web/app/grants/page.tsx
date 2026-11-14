@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { apiGet, toQuery, type Coverage, type Meta, type SearchResult } from "@/lib/api";
+import { apiGet, DEFAULT_FUNDING_TYPES, toQuery, type Coverage, type Meta, type SearchResult } from "@/lib/api";
 import { OpportunityCard } from "@/components/OpportunityCard";
 import { SearchFilters } from "@/components/SearchFilters";
 import { SaveSearchButton } from "@/components/SaveSearchButton";
@@ -17,7 +17,13 @@ function first(v: string | string[] | undefined): string | undefined {
 
 function pick(sp: Params): Record<string, string | undefined> {
   const keys = ["q", "states", "entityTypes", "categories", "levels", "status", "minAmount", "maxAmount", "deadlineWithinDays", "sort", "page"];
-  return Object.fromEntries(keys.map((k) => [k, first(sp[k])]));
+  return { ...Object.fromEntries(keys.map((k) => [k, first(sp[k])])), fundingTypes: fundingTypesParam(sp.fundingTypes) };
+}
+
+/** Checkboxes submit one value each; the default selection is left out of the URL so plain /grants stays canonical. */
+function fundingTypesParam(v: string | string[] | undefined): string | undefined {
+  const picked = [...new Set((Array.isArray(v) ? v : [v ?? ""]).flatMap((x) => x.split(",")).filter(Boolean))].sort();
+  return picked.length && picked.join(",") !== [...DEFAULT_FUNDING_TYPES].sort().join(",") ? picked.join(",") : undefined;
 }
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<Params> }): Promise<Metadata> {

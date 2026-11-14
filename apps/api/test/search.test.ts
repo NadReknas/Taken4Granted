@@ -10,6 +10,12 @@ describe("search parameter parsing", () => {
     expect(p.status).toBe("open");
     expect(p.page).toBe(1);
   });
+  it("defaults funding types to grants + other programs and accepts explicit opt-ins", () => {
+    expect(searchParamsSchema.parse({}).fundingTypes).toEqual(["grant", "other"]);
+    expect(searchParamsSchema.parse({ fundingTypes: "" }).fundingTypes).toEqual(["grant", "other"]);
+    expect(searchParamsSchema.parse({ fundingTypes: "loan,disaster_aid" }).fundingTypes).toEqual(["loan", "disaster_aid"]);
+    expect(searchParamsSchema.safeParse({ fundingTypes: "cash" }).success).toBe(false);
+  });
   it("rejects unknown states and oversized pages", () => {
     expect(searchParamsSchema.safeParse({ states: "XX" }).success).toBe(false);
     expect(searchParamsSchema.safeParse({ pageSize: 1000 }).success).toBe(false);
@@ -23,7 +29,8 @@ describe("filter SQL", () => {
     expect(where.join(" AND ")).toContain("states = '{}' OR states &&");
     expect(where.join(" AND ")).toContain("amount_max IS NULL OR amount_max >=");
     expect(where.join(" AND ")).toContain("amount_min IS NULL OR amount_min <=");
-    expect(params).toEqual(["open", ["IA"], 1000, 50000]);
+    expect(where.join(" AND ")).toContain("funding_types &&");
+    expect(params).toEqual(["open", ["IA"], ["grant", "other"], 1000, 50000]);
   });
 });
 

@@ -7,6 +7,7 @@ import { RssSource } from "./rss.js";
 import { CaGrantsSource } from "./ca-grants.js";
 import { WpRestSource } from "./wp-rest.js";
 import { HtmlListSource } from "./html-list.js";
+import { FederalRegisterSource } from "./federal-register.js";
 import type { SourceAdapter, SourceConfig } from "./types.js";
 import { STATE_CODES } from "../domain/opportunity.js";
 
@@ -68,6 +69,15 @@ export const sourceConfigSchema = z.discriminatedUnion("kind", [
     defaultEntityTypes: z.array(z.string()).optional(),
     defaultCategories: z.array(z.string()).optional(),
   }),
+  z.object({
+    ...base,
+    kind: z.literal("federal_register"),
+    agencies: z.array(z.string().regex(/^[a-z0-9-]+$/)).min(1),
+    lookbackDays: z.number().int().min(1).max(730).optional(),
+    includeTitle: z.string().optional(),
+    excludeTitle: z.string().optional(),
+    fetchDetails: z.boolean().optional(),
+  }),
 ]);
 
 export const sourcesFileSchema = z.object({ sources: z.array(sourceConfigSchema) });
@@ -84,6 +94,8 @@ export function buildAdapter(cfg: SourceConfig): SourceAdapter {
       return new WpRestSource(cfg);
     case "html_list":
       return new HtmlListSource(cfg);
+    case "federal_register":
+      return new FederalRegisterSource(cfg);
   }
 }
 

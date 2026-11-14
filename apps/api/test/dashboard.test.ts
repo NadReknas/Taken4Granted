@@ -10,6 +10,7 @@ const base = {
   agency: null,
   entityTypes: ["small_business"],
   categories: ["energy"],
+  fundingTypes: ["grant"],
   summary: null,
   eligibilityText: null,
   amountMin: null,
@@ -86,6 +87,25 @@ describe.skipIf(!hasDb)("dashboard: saved grants, matches, digests", () => {
     expect(body.items).toHaveLength(1);
     expect(body.items[0].id).toBe(caId);
     expect(body.items[0].matched_alerts.map((a: { name: string }) => a.name).sort()).toEqual(["California", "Energy"]);
+  });
+
+  it("filters search and alerts by funding type, hiding opt-in types by default", async () => {
+    const c = { gr_session: cookie };
+    await upsertOpportunity({ ...base, externalId: "loan", title: "CA loan fund", level: "state", states: ["CA"], fundingTypes: ["loan"] });
+    await upsertOpportunity({ ...base, externalId: "dis", title: "CA disaster loans", level: "federal", states: ["CA"], fundingTypes: ["disaster_aid"] });
+    const titles = async (qs: string) =>
+      (await app.inject({ method: "GET", url: `/opportunities?states=CA${qs}`, cookies: c })).json().items.map((o: { title: string }) => o.title).sort();
+    expect(await titles("")).toEqual(["CA solar"]);
+    expect(await titles("&fundingTypes=loan,disaster_aid")).toEqual(["CA disaster loans", "CA loan fund"]);
+    expect((await app.inject({ method: "GET", url: "/opportunities?fundingTypes=bogus" })).statusCode).toBe(400);
+
+    const created = await app.inject({ method: "POST", url: "/alerts", cookies: c, payload: { name: "Loans", states: ["CA"], fundingTypes: ["loan"] } });
+    expect(created.json().funding_types).toEqual(["loan"]);
+    const plain = await app.inject({ method: "POST", url: "/alerts", cookies: c, payload: { name: "Plain", states: ["CA"] } });
+    expect(plain.json().funding_types).toEqual(["grant", "other"]);
+    const matches = (await app.inject({ method: "GET", url: "/alerts/matches", cookies: c })).json().items;
+    const byTitle = Object.fromEntries(matches.map((m: { title: string; matched_alerts: Array<{ name: string }> }) => [m.title, m.matched_alerts.map((a) => a.name)]));
+    expect(byTitle).toEqual({ "CA solar": ["Plain"], "CA loan fund": ["Loans"] });
   });
 
   it("lists past digests with their opportunities", async () => {

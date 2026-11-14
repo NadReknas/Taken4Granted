@@ -10,6 +10,7 @@ const base = {
   agency: null,
   entityTypes: ["small_business"],
   categories: ["energy"],
+  fundingTypes: ["grant"],
   summary: null,
   eligibilityText: null,
   amountMin: null,
