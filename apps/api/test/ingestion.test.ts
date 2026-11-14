@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizedOpportunitySchema, parseMoney, stripHtml, inferCategories, buildSlug, MAX_TEXT } from "../src/domain/opportunity.js";
+import { normalizedOpportunitySchema, parseMoney, stripHtml, inferCategories, inferFundingTypes, buildSlug, MAX_TEXT } from "../src/domain/opportunity.js";
 import { GrantsGovSource, normalizeHit, parseGrantsGovDate, searchResponseSchema } from "../src/sources/grants-gov.js";
 import { logger } from "../src/lib/logger.js";
 import { normalizeCaRecord, parseAmountRange, parseCaDate, caRecordSchema } from "../src/sources/ca-grants.js";
@@ -26,6 +26,18 @@ describe("normalisation helpers", () => {
   it("infers categories from keywords and builds stable slugs", () => {
     expect(inferCategories("Rural broadband and solar microgrid pilot")).toEqual(expect.arrayContaining(["energy", "rural_development"]));
     expect(buildSlug({ title: "Solar – Round 2!", externalId: "ABC-123" })).toBe("solar-round-2-abc-123");
+  });
+});
+
+describe("funding type inference", () => {
+  it("reads the title first and only falls back to the summary", () => {
+    expect(inferFundingTypes("Rural Business Loan Fund")).toEqual(["loan"]);
+    expect(inferFundingTypes("Clean Energy Grants and Loans").sort()).toEqual(["grant", "loan"]);
+    expect(inferFundingTypes("Solar Investment Tax Credit")).toEqual(["tax_incentive"]);
+    expect(inferFundingTypes("Hazard Mitigation Assistance")).toEqual(["disaster_aid"]);
+    expect(inferFundingTypes("Main Street Program", "Low-interest loans for storefronts")).toEqual(["loan"]);
+    expect(inferFundingTypes("Farm Energy Grants", "Unlike our loan program, grants need no repayment")).toEqual(["grant"]);
+    expect(inferFundingTypes("Main Street Program")).toEqual(["other"]);
   });
 });
 
@@ -103,6 +115,12 @@ describe("Grants.gov adapter", () => {
     expect(o.applyUrl).toBe("https://www.grants.gov/search-results-detail/358000");
     expect(o.summary).toBe("Grants for renewable energy systems on farms.");
   });
+  it("tags Disaster Prevention & Relief grants as disaster aid as well as grants", () => {
+    const hit = { id: "1", number: "DHS-1", title: "Building Resilient Infrastructure", agency: "FEMA", openDate: "08/01/2026", closeDate: "10/15/2026", oppStatus: "posted" as const };
+    const detail = { fundingActivityCategories: [{ id: "DPR", description: "Disaster Prevention and Relief" }] };
+    expect(normalizeHit(hit, detail, "grants_gov").fundingTypes).toEqual(["grant", "disaster_aid"]);
+    expect(normalizeHit(hit, null, "grants_gov").fundingTypes).toEqual(["grant"]);
+  });
 
   it("fetches through the retrying HTTP client and survives a transient 503", async () => {
     let searchCalls = 0;
@@ -158,6 +176,13 @@ describe("California Grants Portal adapter", () => {
     expect(o.amountMax).toBe(30_000_000);
     expect(o.status).toBe("open");
     expect(o.deadline?.toISOString()).toBe("2026-10-16T23:59:00.000Z");
+    expect(o.fundingTypes).toEqual(["grant"]);
+  });
+  it("uses the portal's own Type field for funding types", () => {
+    const rec = (Type: string, Title: string) =>
+      caRecordSchema.parse({ PortalID: "1", Title, AgencyDept: "IBank", Status: "active", Type, GrantURL: "https://ibank.ca.gov/" });
+    expect(normalizeCaRecord(rec("Loan", "Small Business Finance Center"), "ca").fundingTypes).toEqual(["loan"]);
+    expect(normalizeCaRecord(rec("Grant; Loan", "Climate Catalyst Fund"), "ca").fundingTypes.sort()).toEqual(["grant", "loan"]);
   });
   it("parses amount ranges and dates defensively", () => {
     expect(parseAmountRange("Up to $50,000")).toEqual({ min: null, max: 50_000 });
@@ -190,7 +215,9 @@ describe("source configuration", () => {
   it("loads and validates the shipped sources.json", async () => {
     const adapters = await loadSources();
     expect(adapters.length).toBeGreaterThanOrEqual(3);
-    expect(adapters.map((a) => a.config.kind)).toEqual(expect.arrayContaining(["grants_gov", "ca_grants"]));
+    expect(adapters.map((a) => a.config.kind)).toEqual(expect.arrayContaining(["grants_gov", "ca_grants", "federal_register"]));
+    const gg = adapters.find((a) => a.config.id === "grants_gov_sustainability")!.config;
+    expect(gg.kind === "grants_gov" && gg.fundingCategories).toEqual(expect.arrayContaining(["T", "IIJ", "DPR"]));
   });
 });
 

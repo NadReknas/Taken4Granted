@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { one, query } from "../db/pool.js";
-import { CATEGORIES, ENTITY_TYPES, STATE_CODES, US_STATES, ENTITY_TYPE_LABELS, type OpportunityRow } from "../domain/opportunity.js";
+import { CATEGORIES, DEFAULT_FUNDING_TYPES, ENTITY_TYPES, FUNDING_TYPES, FUNDING_TYPE_LABELS, STATE_CODES, US_STATES, ENTITY_TYPE_LABELS, type OpportunityRow } from "../domain/opportunity.js";
 import { config } from "../lib/config.js";
 import { logger, type Logger } from "../lib/logger.js";
 import { emailProvider, escapeHtml, layout } from "./email.js";
@@ -13,6 +13,7 @@ export const alertInputSchema = z.object({
   entityTypes: z.array(z.enum(ENTITY_TYPES)).default([]),
   keywords: z.array(z.string().trim().min(2).max(60)).max(20).default([]),
   categories: z.array(z.enum(CATEGORIES)).default([]),
+  fundingTypes: z.array(z.enum(FUNDING_TYPES)).min(1).default(DEFAULT_FUNDING_TYPES),
   amountMin: z.number().nonnegative().nullable().default(null),
   amountMax: z.number().nonnegative().nullable().default(null),
   includeFederal: z.boolean().default(true),
@@ -28,6 +29,7 @@ export interface AlertRow {
   entity_types: string[];
   keywords: string[];
   categories: string[];
+  funding_types: string[];
   amount_min: string | null;
   amount_max: string | null;
   include_federal: boolean;
@@ -36,7 +38,7 @@ export interface AlertRow {
   updated_at: Date;
 }
 
-const ALERT_COLS = `id, user_id, name, states, entity_types, keywords, categories, amount_min, amount_max, include_federal, active, created_at, updated_at`;
+const ALERT_COLS = `id, user_id, name, states, entity_types, keywords, categories, funding_types, amount_min, amount_max, include_federal, active, created_at, updated_at`;
 
 export async function listAlerts(userId: string): Promise<AlertRow[]> {
   return query<AlertRow>(`SELECT ${ALERT_COLS} FROM alert_criteria WHERE user_id = $1 ORDER BY created_at`, [userId]);
@@ -49,9 +51,9 @@ export async function countAlerts(userId: string): Promise<number> {
 
 export async function createAlert(userId: string, input: AlertInput): Promise<AlertRow> {
   const row = await one<AlertRow>(
-    `INSERT INTO alert_criteria (user_id, name, states, entity_types, keywords, categories, amount_min, amount_max, include_federal, active)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING ${ALERT_COLS}`,
-    [userId, input.name, input.states, input.entityTypes, input.keywords, input.categories, input.amountMin, input.amountMax, input.includeFederal, input.active],
+    `INSERT INTO alert_criteria (user_id, name, states, entity_types, keywords, categories, amount_min, amount_max, include_federal, active, funding_types)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING ${ALERT_COLS}`,
+    [userId, input.name, input.states, input.entityTypes, input.keywords, input.categories, input.amountMin, input.amountMax, input.includeFederal, input.active, input.fundingTypes],
   );
   return row!;
 }
@@ -59,9 +61,9 @@ export async function createAlert(userId: string, input: AlertInput): Promise<Al
 export async function updateAlert(userId: string, id: string, input: AlertInput): Promise<AlertRow | null> {
   return one<AlertRow>(
     `UPDATE alert_criteria SET name=$3, states=$4, entity_types=$5, keywords=$6, categories=$7, amount_min=$8, amount_max=$9,
-       include_federal=$10, active=$11, updated_at=now()
+       include_federal=$10, active=$11, funding_types=$12, updated_at=now()
      WHERE id = $1 AND user_id = $2 RETURNING ${ALERT_COLS}`,
-    [id, userId, input.name, input.states, input.entityTypes, input.keywords, input.categories, input.amountMin, input.amountMax, input.includeFederal, input.active],
+    [id, userId, input.name, input.states, input.entityTypes, input.keywords, input.categories, input.amountMin, input.amountMax, input.includeFederal, input.active, input.fundingTypes],
   );
 }
 
@@ -77,6 +79,7 @@ export async function matchAlert(alert: AlertRow, since: Date, limit = 50): Prom
     states: alert.states,
     entityTypes: alert.entity_types,
     categories: alert.categories,
+    fundingTypes: alert.funding_types,
     levels: alert.include_federal ? [] : ["state", "local", "other"],
     minAmount: alert.amount_min ?? undefined,
     maxAmount: alert.amount_max ?? undefined,
@@ -86,7 +89,7 @@ export async function matchAlert(alert: AlertRow, since: Date, limit = 50): Prom
   const params: unknown[] = [since];
   const where = ["first_seen_at > $1", ...buildFilters(p, params)];
   return query<OpportunityRow>(
-    `SELECT id, source_id, external_id, slug, title, agency, level, states, entity_types, categories, summary, eligibility_text,
+    `SELECT id, source_id, external_id, slug, title, agency, level, states, entity_types, categories, funding_types, summary, eligibility_text,
             amount_min, amount_max, total_funding, posted_at, deadline, deadline_text, apply_url, status, first_seen_at, last_seen_at, updated_at
      FROM opportunities WHERE ${where.join(" AND ")}
      ORDER BY deadline ASC NULLS LAST LIMIT $${params.push(limit)}`,
@@ -130,6 +133,9 @@ export function renderDigest(sections: DigestSection[], appUrl: string): { subje
       s.alert.states.length ? `States: ${s.alert.states.map((c) => US_STATES[c] ?? c).join(", ")}` : "Nationwide",
       s.alert.entity_types.length ? `Entity: ${s.alert.entity_types.map((e) => ENTITY_TYPE_LABELS[e as keyof typeof ENTITY_TYPE_LABELS] ?? e).join(", ")}` : null,
       s.alert.keywords.length ? `Keywords: ${s.alert.keywords.join(", ")}` : null,
+      s.alert.funding_types.length
+        ? `Funding: ${s.alert.funding_types.map((t) => FUNDING_TYPE_LABELS[t as keyof typeof FUNDING_TYPE_LABELS] ?? t).join(", ")}`
+        : null,
     ]
       .filter(Boolean)
       .join(" · ");

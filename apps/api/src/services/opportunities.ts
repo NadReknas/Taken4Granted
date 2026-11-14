@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { query, one } from "../db/pool.js";
-import { CATEGORIES, ENTITY_TYPES, LEVELS, STATE_CODES, STATUSES, US_STATES, type OpportunityRow } from "../domain/opportunity.js";
+import { CATEGORIES, DEFAULT_FUNDING_TYPES, ENTITY_TYPES, FUNDING_TYPES, LEVELS, STATE_CODES, STATUSES, US_STATES, type OpportunityRow } from "../domain/opportunity.js";
 import { STATE_PORTALS, type StatePortal } from "../domain/state-portals.js";
 
 const csv = <T extends z.ZodTypeAny>(inner: T) =>
@@ -14,6 +14,8 @@ export const searchParamsSchema = z.object({
   states: csv(z.enum(STATE_CODES)).default([]),
   entityTypes: csv(z.enum(ENTITY_TYPES)).default([]),
   categories: csv(z.enum(CATEGORIES)).default([]),
+  /** Omitted → DEFAULT_FUNDING_TYPES; pass every type to see everything. */
+  fundingTypes: z.preprocess((v) => (v == null || v === "" ? DEFAULT_FUNDING_TYPES : v), csv(z.enum(FUNDING_TYPES)).pipe(z.array(z.enum(FUNDING_TYPES)).min(1))),
   levels: csv(z.enum(LEVELS)).default([]),
   status: z.enum([...STATUSES, "all"]).default("open"),
   minAmount: z.coerce.number().nonnegative().optional(),
@@ -61,6 +63,7 @@ export function buildFilters(p: SearchParams, params: unknown[], startIdx = para
   if (p.entityTypes.length)
     where.push(`(entity_types = '{}' OR 'any' = ANY(entity_types) OR entity_types && ${push(p.entityTypes)}::text[])`);
   if (p.categories.length) where.push(`categories && ${push(p.categories)}::text[]`);
+  if (p.fundingTypes.length) where.push(`funding_types && ${push(p.fundingTypes)}::text[]`);
   if (p.levels.length) where.push(`level = ANY(${push(p.levels)}::text[])`);
   if (p.minAmount != null) where.push(`(amount_max IS NULL OR amount_max >= ${push(p.minAmount)})`);
   if (p.maxAmount != null) where.push(`(amount_min IS NULL OR amount_min <= ${push(p.maxAmount)})`);
@@ -77,7 +80,7 @@ const orderBy: Record<SearchParams["sort"], string> = {
   relevance: "rank DESC, deadline ASC NULLS LAST",
 };
 
-const COLUMNS = `id, source_id, external_id, slug, title, agency, level, states, entity_types, categories,
+const COLUMNS = `id, source_id, external_id, slug, title, agency, level, states, entity_types, categories, funding_types,
   summary, eligibility_text, amount_min, amount_max, total_funding, posted_at, deadline, deadline_text,
   apply_url, status, first_seen_at, last_seen_at, updated_at`;
 

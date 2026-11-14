@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api, ApiError } from "@/lib/client";
+import { fundingTypesOf } from "@/lib/api";
 import type { AlertDraft } from "./AlertForm";
 import { useSaved } from "./SavedProvider";
 
@@ -17,6 +18,7 @@ export function searchToDraft(v: Record<string, string | undefined>, stateNames:
     entityTypes: v.entityTypes ? [v.entityTypes] : [],
     keywords,
     categories: v.categories ? v.categories.split(",").filter(Boolean) : [],
+    fundingTypes: fundingTypesOf(v.fundingTypes),
     amountMin: v.minAmount ? Number(v.minAmount) : null,
     amountMax: v.maxAmount ? Number(v.maxAmount) : null,
     includeFederal: v.levels !== "state",
@@ -30,7 +32,7 @@ export function SaveSearchButton({ values, stateNames }: { values: Record<string
   const router = useRouter();
   const [state, setState] = useState<"idle" | "busy" | "paywall" | "error">("idle");
   if (!ids) return null;
-  const hasFilters = ["q", "states", "entityTypes", "categories", "minAmount", "maxAmount"].some((k) => values[k]);
+  const hasFilters = ["q", "states", "entityTypes", "categories", "fundingTypes", "minAmount", "maxAmount"].some((k) => values[k]);
   if (!hasFilters) return null;
 
   async function save() {

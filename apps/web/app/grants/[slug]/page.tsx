@@ -21,6 +21,14 @@ const ENTITY_LABELS: Record<string, string> = {
   any: "Open eligibility",
 };
 
+const FUNDING_LABELS: Record<string, string> = {
+  grant: "Grant",
+  loan: "Loan / loan guarantee",
+  tax_incentive: "Tax credit / incentive",
+  disaster_aid: "Disaster aid",
+  other: "Other program",
+};
+
 async function load(slug: string): Promise<Opportunity | null> {
   return apiGetOrNull<Opportunity>(`/opportunities/${encodeURIComponent(slug)}`, 600);
 }
@@ -66,6 +74,11 @@ export default async function GrantPage({ params }: { params: Promise<{ slug: st
           <div className="mb-2 flex flex-wrap gap-2 text-xs">
             <span className="badge border-stone-300 bg-white">{o.level === "federal" ? "Federal" : `State · ${o.states.join(", ")}`}</span>
             <span className="badge border-stone-300 bg-white">{titleCase(o.status)}</span>
+            {o.funding_types.map((t) => (
+              <Link key={t} href={`/grants?fundingTypes=${t}`} className="badge border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100">
+                {FUNDING_LABELS[t] ?? titleCase(t)}
+              </Link>
+            ))}
             {o.categories.map((c) => (
               <Link key={c} href={`/grants?categories=${c}`} className="badge border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100">
                 {titleCase(c)}

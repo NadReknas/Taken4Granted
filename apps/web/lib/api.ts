@@ -9,6 +9,7 @@ export interface Opportunity {
   states: string[];
   entity_types: string[];
   categories: string[];
+  funding_types: string[];
   summary: string | null;
   eligibility_text: string | null;
   amount_min: string | null;
@@ -37,7 +38,17 @@ export interface Meta {
   states: Record<string, string>;
   entityTypes: Array<{ value: string; label: string }>;
   categories: string[];
+  fundingTypes: Array<{ value: string; label: string }>;
   levels: string[];
+}
+
+/** Mirrors the API's DEFAULT_FUNDING_TYPES: what a search shows until the user switches other types on. */
+export const DEFAULT_FUNDING_TYPES = ["grant", "other"];
+
+/** Comma-separated funding types from a URL value, falling back to the default selection. */
+export function fundingTypesOf(v: string | undefined): string[] {
+  const picked = (v ?? "").split(",").filter(Boolean);
+  return picked.length ? picked : DEFAULT_FUNDING_TYPES;
 }
 
 export interface Stats {
@@ -54,6 +65,7 @@ export interface Alert {
   entity_types: string[];
   keywords: string[];
   categories: string[];
+  funding_types: string[];
   amount_min: string | null;
   amount_max: string | null;
   include_federal: boolean;

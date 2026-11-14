@@ -2,7 +2,7 @@ import { query } from "../db/pool.js";
 import type { OpportunityRow } from "../domain/opportunity.js";
 import { listAlerts, matchAlert, type AlertRow } from "./alerts.js";
 
-const OPP_COLS = `o.id, o.source_id, o.external_id, o.slug, o.title, o.agency, o.level, o.states, o.entity_types, o.categories,
+const OPP_COLS = `o.id, o.source_id, o.external_id, o.slug, o.title, o.agency, o.level, o.states, o.entity_types, o.categories, o.funding_types,
   o.summary, o.eligibility_text, o.amount_min, o.amount_max, o.total_funding, o.posted_at, o.deadline, o.deadline_text,
   o.apply_url, o.status, o.first_seen_at, o.last_seen_at, o.updated_at`;
 

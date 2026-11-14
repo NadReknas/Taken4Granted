@@ -83,12 +83,26 @@ export interface HtmlListSourceConfig extends SourceConfigBase {
   defaultCategories?: string[];
 }
 
+export interface FederalRegisterSourceConfig extends SourceConfigBase {
+  kind: "federal_register";
+  /** federalregister.gov agency slugs whose notices are scanned. */
+  agencies: string[];
+  /** How far back to scan; notices older than this drop out and are closed. Default 270. */
+  lookbackDays?: number;
+  /** Case-insensitive regexes over "title + action" / the title; defaults in federal-register.ts. */
+  includeTitle?: string;
+  excludeTitle?: string;
+  /** Fetch each kept notice's full text to read its deadline. Default true. */
+  fetchDetails?: boolean;
+}
+
 export type SourceConfig =
   | GrantsGovSourceConfig
   | RssSourceConfig
   | CaGrantsSourceConfig
   | WpRestSourceConfig
-  | HtmlListSourceConfig;
+  | HtmlListSourceConfig
+  | FederalRegisterSourceConfig;
 
 export interface SourceAdapter {
   readonly config: SourceConfig;

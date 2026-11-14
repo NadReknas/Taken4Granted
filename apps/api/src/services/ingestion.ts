@@ -23,13 +23,13 @@ export async function upsertOpportunity(o: NormalizedOpportunity): Promise<"inse
   const sourceId = owner?.source_id ?? o.sourceId;
   const row = await one<{ inserted: boolean }>(
     `INSERT INTO opportunities (
-       source_id, external_id, slug, title, agency, level, states, entity_types, categories,
+       source_id, external_id, slug, title, agency, level, states, entity_types, categories, funding_types,
        summary, eligibility_text, amount_min, amount_max, total_funding, posted_at, deadline,
        deadline_text, apply_url, status, raw, last_seen_at, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,now(),now())
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,now(),now())
      ON CONFLICT (source_id, external_id) DO UPDATE SET
        title = EXCLUDED.title, agency = EXCLUDED.agency, level = EXCLUDED.level,
-       states = EXCLUDED.states, entity_types = EXCLUDED.entity_types, categories = EXCLUDED.categories,
+       states = EXCLUDED.states, entity_types = EXCLUDED.entity_types, categories = EXCLUDED.categories, funding_types = EXCLUDED.funding_types,
        summary = EXCLUDED.summary, eligibility_text = EXCLUDED.eligibility_text,
        amount_min = EXCLUDED.amount_min, amount_max = EXCLUDED.amount_max, total_funding = EXCLUDED.total_funding,
        posted_at = EXCLUDED.posted_at, deadline = EXCLUDED.deadline, deadline_text = EXCLUDED.deadline_text,
@@ -46,6 +46,7 @@ export async function upsertOpportunity(o: NormalizedOpportunity): Promise<"inse
       o.states,
       o.entityTypes,
       o.categories,
+      o.fundingTypes,
       o.summary,
       o.eligibilityText,
       o.amountMin,

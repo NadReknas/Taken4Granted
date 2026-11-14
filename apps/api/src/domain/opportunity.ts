@@ -55,6 +55,21 @@ export const CATEGORIES = [
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
 
+/** What kind of money an opportunity offers; users can toggle each type on or off in search and alerts. */
+export const FUNDING_TYPES = ["grant", "loan", "tax_incentive", "disaster_aid", "other"] as const;
+export type FundingType = (typeof FUNDING_TYPES)[number];
+
+/** Shown when a search or new alert doesn't pick funding types: grants plus unclassified programs; the rest are opt-in. */
+export const DEFAULT_FUNDING_TYPES: FundingType[] = ["grant", "other"];
+
+export const FUNDING_TYPE_LABELS: Record<FundingType, string> = {
+  grant: "Grants",
+  loan: "Loans & loan guarantees",
+  tax_incentive: "Tax credits & incentives",
+  disaster_aid: "Disaster aid",
+  other: "Other programs",
+};
+
 export const LEVELS = ["federal", "state", "local", "other"] as const;
 export const STATUSES = ["open", "closed", "forecasted"] as const;
 
@@ -73,6 +88,7 @@ export const normalizedOpportunitySchema = z
     states: z.array(z.enum(STATE_CODES)).default([]),
     entityTypes: z.array(z.enum(ENTITY_TYPES)).default([]),
     categories: z.array(z.enum(CATEGORIES)).default([]),
+    fundingTypes: z.array(z.enum(FUNDING_TYPES)).min(1).default(["other"]),
     summary: z.string().trim().max(MAX_TEXT).nullable(),
     eligibilityText: z.string().trim().max(MAX_TEXT).nullable(),
     amountMin: money,
@@ -103,6 +119,7 @@ export interface OpportunityRow {
   states: string[];
   entity_types: string[];
   categories: string[];
+  funding_types: string[];
   summary: string | null;
   eligibility_text: string | null;
   amount_min: string | null;
@@ -192,8 +209,36 @@ export function inferCategories(text: string, seed: Category[] = []): Category[]
 
 export function inferStates(text: string): string[] {
   const found = new Set<string>();
-  for (const [code, name] of Object.entries(US_STATES)) {
-    if (new RegExp(`\\b${name}\\b`, "i").test(text)) found.add(code);
+  // Longest names first, removing each match, so "West Virginia" doesn't also count as Virginia.
+  let rest = text;
+  for (const [code, name] of Object.entries(US_STATES).sort((x, y) => y[1].length - x[1].length)) {
+    const re = new RegExp(`\\b${name}\\b`, "gi");
+    if (re.test(rest)) {
+      found.add(code);
+      rest = rest.replace(re, " ");
+    }
   }
   return [...found];
+}
+
+const FUNDING_TYPE_KEYWORDS: Array<[FundingType, RegExp]> = [
+  ["grant", /\b(grants?|cooperative agreements?|matching funds)\b/i],
+  ["loan", /\b(loans?|lending|relending|revolving (loan )?fund|financing|bonds?)\b/i],
+  ["tax_incentive", /\b(tax (credits?|exemptions?|abatements?|incentives?|refunds?|increment)|sales tax|property tax|rebates?|enterprise zones?|opportunity zones?)\b/i],
+  ["disaster_aid", /\b(disasters?|hazard mitigation|emergency (relief|assistance)|recovery assistance)\b/i],
+];
+
+function matchFundingTypes(text: string): FundingType[] {
+  return FUNDING_TYPE_KEYWORDS.filter(([, re]) => re.test(text)).map(([t]) => t);
+}
+
+/**
+ * Funding types from the title first (it names the program, e.g. "Business Loan Fund"); the summary is only
+ * consulted when the title says nothing, since program write-ups often mention other funding in passing.
+ */
+export function inferFundingTypes(title: string, summary: string | null = null, seed: FundingType[] = []): FundingType[] {
+  const found = new Set<FundingType>(seed);
+  const fromTitle = matchFundingTypes(title);
+  for (const t of fromTitle.length ? fromTitle : matchFundingTypes(summary ?? "")) found.add(t);
+  return found.size ? [...found] : ["other"];
 }

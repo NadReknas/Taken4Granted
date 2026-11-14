@@ -2,6 +2,7 @@ import { z } from "zod";
 import { fetchWithRetry } from "../lib/retry.js";
 import {
   inferCategories,
+  inferFundingTypes,
   normalizedOpportunitySchema,
   parseMoney,
   stripHtml,
@@ -24,6 +25,7 @@ export const caRecordSchema = z
     Status: str,
     AgencyDept: str,
     Title: z.string(),
+    Type: str,
     Categories: str,
     Purpose: str,
     Description: str,
@@ -97,6 +99,8 @@ export function normalizeCaRecord(rec: CaRecord, sourceId: string): NormalizedOp
     states: ["CA"],
     entityTypes,
     categories: categories.length ? categories : ["other"],
+    // Type is the portal's own label ("Grant", "Loan", "Grant; Loan"); it is a grants portal when unlabelled.
+    fundingTypes: rec.Type ? inferFundingTypes(rec.Type) : ["grant"],
     summary,
     eligibilityText: stripHtml(rec.ApplicantTypeNotes),
     amountMin: range.min,

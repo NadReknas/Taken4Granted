@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { Alert, BillingConfig, DigestSummary, MatchedOpportunity, Meta, Opportunity, SavedOpportunity, SearchResult, User } from "@/lib/api";
-import { toQuery } from "@/lib/api";
+import { fundingTypesOf, toQuery } from "@/lib/api";
 import { api, ApiError } from "@/lib/client";
 import { amountLabel, deadlineLabel, formatDate, titleCase, trialLabel } from "@/lib/format";
 import { AlertForm, type AlertDraft } from "@/components/AlertForm";
@@ -118,7 +118,7 @@ export function Dashboard() {
 
 type SearchValues = Record<string, string | undefined>;
 
-const SEARCH_KEYS = ["q", "states", "entityTypes", "categories", "levels", "minAmount", "deadlineWithinDays", "sort"];
+const SEARCH_KEYS = ["q", "states", "entityTypes", "categories", "fundingTypes", "levels", "minAmount", "deadlineWithinDays", "sort"];
 
 function initialSearch(params: URLSearchParams): SearchValues {
   const v: SearchValues = { sort: "deadline" };
@@ -240,7 +240,7 @@ function SearchTab({ meta, user, onSaved, initial }: { meta: Meta; user: User; o
     setV((prev) => ({ ...prev, [k]: val || undefined }));
   }
 
-  const hasFilters = ["q", "states", "entityTypes", "categories", "minAmount", "deadlineWithinDays"].some((k) => v[k]);
+  const hasFilters = ["q", "states", "entityTypes", "categories", "fundingTypes", "minAmount", "deadlineWithinDays"].some((k) => v[k]);
   const pages = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1;
 
   async function saveAsAlert() {
@@ -271,6 +271,25 @@ function SearchTab({ meta, user, onSaved, initial }: { meta: Meta; user: User; o
         </label>
         <Select label="Deadline within" value={v.deadlineWithinDays} onChange={(x) => set("deadlineWithinDays", x)} options={[["", "Any time"], ["14", "14 days"], ["30", "30 days"], ["60", "60 days"], ["90", "90 days"]]} />
         <Select label="Sort" value={v.sort} onChange={(x) => set("sort", x)} options={[["deadline", "Deadline (soonest)"], ["newest", "Newest"], ["amount", "Largest award"], ["relevance", "Relevance"]]} />
+        <fieldset className="text-sm sm:col-span-2 lg:col-span-4">
+          <legend className="mb-1 text-stone-600">Funding types</legend>
+          <div className="flex flex-wrap gap-2">
+            {meta.fundingTypes.map((t) => {
+              const on = fundingTypesOf(v.fundingTypes).includes(t.value);
+              return (
+                <button
+                  type="button"
+                  key={t.value}
+                  aria-pressed={on}
+                  onClick={() => set("fundingTypes", toggleFundingType(v.fundingTypes, t.value))}
+                  className={`badge cursor-pointer ${on ? "border-green-700 bg-green-700 text-white" : "border-stone-300 bg-white"}`}
+                >
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
         <div className="flex flex-wrap items-end gap-2 lg:col-span-3">
           {hasFilters && saveState !== "done" && saveState !== "paywall" && (
             <button type="button" onClick={() => void saveAsAlert()} disabled={saveState === "busy"} className="btn-primary">
@@ -309,6 +328,12 @@ function SearchTab({ meta, user, onSaved, initial }: { meta: Meta; user: User; o
       )}
     </section>
   );
+}
+
+/** Flips one type in the current selection; turning the last one off falls back to the default selection. */
+function toggleFundingType(current: string | undefined, t: string): string {
+  const sel = fundingTypesOf(current);
+  return (sel.includes(t) ? sel.filter((x) => x !== t) : [...sel, t]).join(",");
 }
 
 function Select({ label, value, onChange, options }: { label: string; value: string | undefined; onChange: (v: string) => void; options: Array<[string, string]> }) {
@@ -468,6 +493,7 @@ function toDraft(a: Alert): AlertDraft {
     entityTypes: a.entity_types,
     keywords: a.keywords,
     categories: a.categories,
+    fundingTypes: a.funding_types,
     amountMin: a.amount_min == null ? null : Number(a.amount_min),
     amountMax: a.amount_max == null ? null : Number(a.amount_max),
     includeFederal: a.include_federal,
@@ -481,6 +507,7 @@ function describe(a: Alert, meta: Meta | null): string {
   if (a.include_federal) parts.push("+ federal");
   if (a.entity_types.length) parts.push(a.entity_types.map((e) => meta?.entityTypes.find((x) => x.value === e)?.label ?? titleCase(e)).join("/"));
   if (a.categories.length) parts.push(a.categories.map(titleCase).join(", "));
+  parts.push(a.funding_types.map((t) => meta?.fundingTypes.find((x) => x.value === t)?.label ?? titleCase(t)).join(", "));
   if (a.keywords.length) parts.push(`“${a.keywords.join("”, “")}”`);
   if (a.amount_min || a.amount_max) parts.push(amountLabel(a.amount_min, a.amount_max));
   return parts.join(" · ");

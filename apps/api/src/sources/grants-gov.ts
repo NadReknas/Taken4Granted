@@ -2,6 +2,7 @@ import { z } from "zod";
 import { fetchWithRetry } from "../lib/retry.js";
 import {
   inferCategories,
+  type FundingType,
   normalizedOpportunitySchema,
   parseMoney,
   stripHtml,
@@ -135,6 +136,9 @@ export function normalizeHit(
     .filter((x): x is Category => !!x);
   const categories = inferCategories(`${hit.title} ${summary ?? ""}`, seedCats);
   const deadline = parseGrantsGovDate(detail?.responseDateStr ?? hit.closeDate, true);
+  const disaster =
+    (detail?.fundingActivityCategories ?? []).some((c) => c.id === "DPR") || /\bdisasters?\b/i.test(hit.title);
+  const fundingTypes: FundingType[] = disaster ? ["grant", "disaster_aid"] : ["grant"];
   const status = hit.oppStatus === "forecasted" ? "forecasted" : hit.oppStatus === "posted" ? "open" : "closed";
 
   return normalizedOpportunitySchema.parse({
@@ -147,6 +151,7 @@ export function normalizeHit(
     states: [],
     entityTypes,
     categories: categories.length ? categories : ["other"],
+    fundingTypes,
     summary,
     eligibilityText,
     amountMin: parseMoney(detail?.awardFloor),
