@@ -2,6 +2,7 @@ import { z } from "zod";
 import { fetchWithRetry } from "../lib/retry.js";
 import {
   inferCategories,
+  inferTargetStates,
   type FundingType,
   normalizedOpportunitySchema,
   parseMoney,
@@ -148,7 +149,7 @@ export function normalizeHit(
     // synopsis.agencyName is frequently the contact person; agencyDetails carries the real agency.
     agency: detail?.agencyDetails?.agencyName ?? detail?.topAgencyDetails?.agencyName ?? hit.agency ?? detail?.agencyName ?? null,
     level: "federal",
-    states: [],
+    states: inferTargetStates(stripHtml(hit.title) ?? hit.title),
     entityTypes,
     categories: categories.length ? categories : ["other"],
     fundingTypes,

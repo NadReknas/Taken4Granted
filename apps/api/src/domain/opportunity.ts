@@ -221,6 +221,60 @@ export function inferStates(text: string): string[] {
   return [...found];
 }
 
+const APPALACHIA = ["AL", "GA", "KY", "MD", "MS", "NY", "NC", "OH", "PA", "SC", "TN", "VA", "WV"];
+
+/** Multi-state regions federal titles name instead of states. Checked before state names, so "Colorado River" isn't just CO. */
+const TARGET_REGIONS: Array<[RegExp, string[]]> = [
+  [/\bchesapeake\b/i, ["DC", "DE", "MD", "NY", "PA", "VA", "WV"]],
+  [/\bgreat lakes\b/i, ["IL", "IN", "MI", "MN", "NY", "OH", "PA", "WI"]],
+  [/\bcolorado plateau\b/i, ["AZ", "CO", "NM", "UT"]],
+  [/\bcolorado river\b/i, ["AZ", "CA", "CO", "NM", "NV", "UT", "WY"]],
+  [/\bpacific northwest\b/i, ["ID", "OR", "WA"]],
+  [/\bnorthern great plains\b/i, ["MT", "ND", "NE", "SD", "WY"]],
+  [/\bgreat plains\b/i, ["KS", "ND", "NE", "OK", "SD"]],
+  [/\brocky mountains?\b/i, ["CO", "ID", "MT", "NM", "UT", "WY"]],
+  [/\bnorth atlantic coast\b/i, ["CT", "MA", "ME", "NH", "NJ", "NY", "RI"]],
+  [/\bnew england\b/i, ["CT", "MA", "ME", "NH", "RI", "VT"]],
+  [/\bgulf of maine\b/i, ["MA", "ME", "NH"]],
+  [/\bgulf (coast|of mexico|of america)\b/i, ["AL", "FL", "LA", "MS", "TX"]],
+  [/\bhawai[ʻ'‘’]?i\b|\bpacific islands\b/i, ["HI"]],
+  [/\bcalifornian\b/i, ["CA"]],
+  [/\bappalachian?\b/i, APPALACHIA],
+  [/\bdelta regional?\b|\bmississippi delta\b/i, ["AL", "AR", "IL", "KY", "LA", "MO", "MS", "TN"]],
+  [/\bmississippi river\b/i, ["AR", "IA", "IL", "KY", "LA", "MN", "MO", "MS", "TN", "WI"]],
+  [/\bmissouri river\b/i, ["IA", "KS", "MO", "MT", "ND", "NE", "SD"]],
+  [/\bcolumbia river\b/i, ["ID", "OR", "WA"]],
+  [/\bpuget sound\b/i, ["WA"]],
+  [/\bgreat basin\b/i, ["ID", "NV", "OR", "UT"]],
+  [/\beverglades\b/i, ["FL"]],
+  [/\bdelaware river\b/i, ["DE", "NJ", "NY", "PA"]],
+  [/\blong island sound\b/i, ["CT", "NY"]],
+  [/\brio grande\b/i, ["CO", "NM", "TX"]],
+  [/\blake tahoe\b/i, ["CA", "NV"]],
+  [/\bklamath\b/i, ["CA", "OR"]],
+  [/\b(southwest|southern|u\.?s\.?[- ]mexico) border\b/i, ["AZ", "CA", "NM", "TX"]],
+];
+
+/** Names that contain a state but don't target it ("Washington, DC" is DC, not WA). */
+const NOT_A_PLACE = /\bwashington,? d\.?\s?c\.?|\b(george|booker t\.?) washington\b|\bindiana bats?\b/gi;
+
+/**
+ * States a nationwide-looking federal notice actually targets, from its title: region names first, then state names.
+ * Empty means nationwide. Foreign-mission notices ("U.S. Embassy Tbilisi, Georgia") are never state-targeted.
+ */
+export function inferTargetStates(title: string): string[] {
+  if (/\b(embassy|consulate)\b/i.test(title)) return [];
+  let rest = title.replace(NOT_A_PLACE, (m) => (/d\.?\s?c\.?$/i.test(m) ? " District of Columbia " : " "));
+  const found = new Set<string>();
+  for (const [re, codes] of TARGET_REGIONS) {
+    if (!re.test(rest)) continue;
+    for (const c of codes) found.add(c);
+    rest = rest.replace(new RegExp(re.source, "gi"), " ");
+  }
+  for (const c of inferStates(rest)) found.add(c);
+  return [...found].sort();
+}
+
 const FUNDING_TYPE_KEYWORDS: Array<[FundingType, RegExp]> = [
   ["grant", /\b(grants?|cooperative agreements?|matching funds)\b/i],
   ["loan", /\b(loans?|lending|relending|revolving (loan )?fund|financing|bonds?)\b/i],

@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { buildApp } from "../src/app.js";
 import { query } from "../src/db/pool.js";
 import { upsertOpportunity } from "../src/services/ingestion.js";
+import { matchAlert, type AlertRow } from "../src/services/alerts.js";
 import { hasDb, teardown, truncateAll } from "./helpers.js";
 
 const base = {
@@ -42,6 +43,23 @@ describe.skipIf(!hasDb)("GET /coverage", () => {
   afterAll(async () => {
     await app.close();
     await teardown();
+  });
+
+  it("can drop nationwide programs and keep only ones targeted to the picked state", async () => {
+    const titles = async (qs: string) =>
+      (await app.inject({ method: "GET", url: `/opportunities?states=IA${qs}` })).json().items.map((o: { title: string }) => o.title).sort();
+    expect(await titles("")).toEqual(["Iowa-only federal", "Nationwide federal"]);
+    expect(await titles("&nationwide=exclude")).toEqual(["Iowa-only federal"]);
+    expect((await app.inject({ method: "GET", url: "/opportunities?nationwide=bogus" })).statusCode).toBe(400);
+
+    const alert: AlertRow = {
+      id: "a", user_id: "u", name: "Iowa only", states: ["IA"], entity_types: [], keywords: [], categories: [],
+      funding_types: ["grant"], amount_min: null, amount_max: null, include_federal: true, include_nationwide: false,
+      active: true, created_at: new Date(), updated_at: new Date(),
+    };
+    const since = new Date(Date.now() - 86_400_000);
+    expect((await matchAlert(alert, since)).map((o) => o.title)).toEqual(["Iowa-only federal"]);
+    expect((await matchAlert({ ...alert, include_nationwide: true }, since)).map((o) => o.title).sort()).toEqual(["Iowa-only federal", "Nationwide federal"]);
   });
 
   it("counts nationwide federal separately and per-state by level, ignoring closed", async () => {

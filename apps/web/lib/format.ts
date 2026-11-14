@@ -27,8 +27,11 @@ export function formatDate(iso: string | null, opts: Intl.DateTimeFormatOptions 
 
 export function daysUntil(iso: string | null): number | null {
   if (!iso) return null;
-  const ms = new Date(iso).getTime() - Date.now();
-  return Math.ceil(ms / 86_400_000);
+  // Calendar days in UTC (the zone dates are shown in), so a deadline later today is "today", not "in 1 day".
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  const now = new Date();
+  return Math.round((Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())) / 86_400_000);
 }
 
 export function deadlineLabel(deadline: string | null, deadlineText: string | null): { text: string; tone: "urgent" | "soon" | "normal" | "none" } {
@@ -41,6 +44,13 @@ export function deadlineLabel(deadline: string | null, deadlineText: string | nu
   if (days <= 14) return { text: `Due in ${days} day${days === 1 ? "" : "s"} · ${date}`, tone: "urgent" };
   if (days <= 45) return { text: `Due in ${days} days · ${date}`, tone: "soon" };
   return { text: `Due ${date}`, tone: "normal" };
+}
+
+/** "Federal" for nationwide federal records, "Federal · WA, OR, ID" when a federal record targets states. */
+export function placeLabel(level: string, states: string[]): string {
+  const list = states.length > 4 ? `${states.slice(0, 3).join(", ")} +${states.length - 3}` : states.join(", ");
+  if (level === "federal") return states.length ? `Federal · ${list}` : "Federal";
+  return states.length ? list : titleCase(level);
 }
 
 export function titleCase(s: string): string {

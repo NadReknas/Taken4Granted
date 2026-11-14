@@ -3,7 +3,7 @@ import { fetchWithRetry } from "../lib/retry.js";
 import {
   inferCategories,
   inferFundingTypes,
-  inferStates,
+  inferTargetStates,
   normalizedOpportunitySchema,
   stripHtml,
   type EntityType,
@@ -94,8 +94,8 @@ export function normalizeFrDocument(doc: FrDocument, fullText: string | null, cf
     : /public assistance only/i.test(title)
       ? ["nonprofit"]
       : ["small_business", "nonprofit", "individual"];
-  // Disaster notices are for one state ("…for the State of Texas"); funding notices are usually nationwide.
-  const states = isDisaster ? inferStates(title) : [];
+  // Disaster notices are for one state ("…for the State of Texas"); funding notices are nationwide unless they name a place.
+  const states = inferTargetStates(title);
   const categories = inferCategories(`${title} ${summary ?? ""}`);
   const publishedAt = new Date(`${doc.publication_date}T00:00:00Z`);
 

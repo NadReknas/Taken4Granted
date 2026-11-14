@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Opportunity } from "@/lib/api";
-import { amountLabel, deadlineLabel, titleCase } from "@/lib/format";
+import { amountLabel, deadlineLabel, titleCase, placeLabel } from "@/lib/format";
 import { SaveButton } from "./SaveButton";
 
 const TONE: Record<string, string> = {
@@ -19,7 +19,7 @@ export function OpportunityCard({ o }: { o: Opportunity }) {
     <article className="card flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className={`badge ${o.level === "federal" ? "border-blue-200 bg-blue-50 text-blue-800" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
-          {o.level === "federal" ? "Federal" : o.states.length ? o.states.join(", ") : titleCase(o.level)}
+          {placeLabel(o.level, o.states)}
         </span>
         {o.funding_types.filter((t) => t !== "grant" && t !== "other").map((t) => (
           <span key={t} className="badge border-emerald-200 bg-emerald-50 text-emerald-800">{FUNDING_TYPE_BADGE[t] ?? titleCase(t)}</span>

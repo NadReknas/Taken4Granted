@@ -17,6 +17,8 @@ export const alertInputSchema = z.object({
   amountMin: z.number().nonnegative().nullable().default(null),
   amountMax: z.number().nonnegative().nullable().default(null),
   includeFederal: z.boolean().default(true),
+  /** False: with states picked, only opportunities targeted to them (no nationwide programs). */
+  includeNationwide: z.boolean().default(true),
   active: z.boolean().default(true),
 });
 export type AlertInput = z.infer<typeof alertInputSchema>;
@@ -33,12 +35,13 @@ export interface AlertRow {
   amount_min: string | null;
   amount_max: string | null;
   include_federal: boolean;
+  include_nationwide: boolean;
   active: boolean;
   created_at: Date;
   updated_at: Date;
 }
 
-const ALERT_COLS = `id, user_id, name, states, entity_types, keywords, categories, funding_types, amount_min, amount_max, include_federal, active, created_at, updated_at`;
+const ALERT_COLS = `id, user_id, name, states, entity_types, keywords, categories, funding_types, amount_min, amount_max, include_federal, include_nationwide, active, created_at, updated_at`;
 
 export async function listAlerts(userId: string): Promise<AlertRow[]> {
   return query<AlertRow>(`SELECT ${ALERT_COLS} FROM alert_criteria WHERE user_id = $1 ORDER BY created_at`, [userId]);
@@ -51,9 +54,9 @@ export async function countAlerts(userId: string): Promise<number> {
 
 export async function createAlert(userId: string, input: AlertInput): Promise<AlertRow> {
   const row = await one<AlertRow>(
-    `INSERT INTO alert_criteria (user_id, name, states, entity_types, keywords, categories, amount_min, amount_max, include_federal, active, funding_types)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING ${ALERT_COLS}`,
-    [userId, input.name, input.states, input.entityTypes, input.keywords, input.categories, input.amountMin, input.amountMax, input.includeFederal, input.active, input.fundingTypes],
+    `INSERT INTO alert_criteria (user_id, name, states, entity_types, keywords, categories, amount_min, amount_max, include_federal, active, funding_types, include_nationwide)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING ${ALERT_COLS}`,
+    [userId, input.name, input.states, input.entityTypes, input.keywords, input.categories, input.amountMin, input.amountMax, input.includeFederal, input.active, input.fundingTypes, input.includeNationwide],
   );
   return row!;
 }
@@ -61,9 +64,9 @@ export async function createAlert(userId: string, input: AlertInput): Promise<Al
 export async function updateAlert(userId: string, id: string, input: AlertInput): Promise<AlertRow | null> {
   return one<AlertRow>(
     `UPDATE alert_criteria SET name=$3, states=$4, entity_types=$5, keywords=$6, categories=$7, amount_min=$8, amount_max=$9,
-       include_federal=$10, active=$11, funding_types=$12, updated_at=now()
+       include_federal=$10, active=$11, funding_types=$12, include_nationwide=$13, updated_at=now()
      WHERE id = $1 AND user_id = $2 RETURNING ${ALERT_COLS}`,
-    [id, userId, input.name, input.states, input.entityTypes, input.keywords, input.categories, input.amountMin, input.amountMax, input.includeFederal, input.active, input.fundingTypes],
+    [id, userId, input.name, input.states, input.entityTypes, input.keywords, input.categories, input.amountMin, input.amountMax, input.includeFederal, input.active, input.fundingTypes, input.includeNationwide],
   );
 }
 
@@ -81,6 +84,7 @@ export async function matchAlert(alert: AlertRow, since: Date, limit = 50): Prom
     categories: alert.categories,
     fundingTypes: alert.funding_types,
     levels: alert.include_federal ? [] : ["state", "local", "other"],
+    nationwide: alert.include_nationwide ? "include" : "exclude",
     minAmount: alert.amount_min ?? undefined,
     maxAmount: alert.amount_max ?? undefined,
     status: "open",
@@ -130,7 +134,9 @@ export function renderDigest(sections: DigestSection[], appUrl: string): { subje
   const htmlParts: string[] = [];
   for (const s of sections) {
     const crit = [
-      s.alert.states.length ? `States: ${s.alert.states.map((c) => US_STATES[c] ?? c).join(", ")}` : "Nationwide",
+      s.alert.states.length
+        ? `States: ${s.alert.states.map((c) => US_STATES[c] ?? c).join(", ")}${s.alert.include_nationwide ? "" : " (state-targeted only)"}`
+        : "Nationwide",
       s.alert.entity_types.length ? `Entity: ${s.alert.entity_types.map((e) => ENTITY_TYPE_LABELS[e as keyof typeof ENTITY_TYPE_LABELS] ?? e).join(", ")}` : null,
       s.alert.keywords.length ? `Keywords: ${s.alert.keywords.join(", ")}` : null,
       s.alert.funding_types.length

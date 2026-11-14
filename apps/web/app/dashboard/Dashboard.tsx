@@ -118,7 +118,7 @@ export function Dashboard() {
 
 type SearchValues = Record<string, string | undefined>;
 
-const SEARCH_KEYS = ["q", "states", "entityTypes", "categories", "fundingTypes", "levels", "minAmount", "deadlineWithinDays", "sort"];
+const SEARCH_KEYS = ["q", "states", "nationwide", "entityTypes", "categories", "fundingTypes", "levels", "minAmount", "deadlineWithinDays", "sort"];
 
 function initialSearch(params: URLSearchParams): SearchValues {
   const v: SearchValues = { sort: "deadline" };
@@ -264,7 +264,8 @@ function SearchTab({ meta, user, onSaved, initial }: { meta: Meta; user: User; o
         <Select label="State" value={v.states} onChange={(x) => set("states", x)} options={[["", "Any state"], ...Object.entries(meta.states)]} />
         <Select label="Applicant" value={v.entityTypes} onChange={(x) => set("entityTypes", x)} options={[["", "Any applicant"], ...meta.entityTypes.filter((e) => e.value !== "any").map((e) => [e.value, e.label] as [string, string])]} />
         <Select label="Category" value={v.categories} onChange={(x) => set("categories", x)} options={[["", "Any category"], ...meta.categories.map((c) => [c, titleCase(c)] as [string, string])]} />
-        <Select label="Level" value={v.levels} onChange={(x) => set("levels", x)} options={[["", "Federal + state"], ["federal", "Federal only"], ["state", "State only"]]} />
+        <Select label="Nationwide programs" value={v.nationwide} onChange={(x) => set("nationwide", x)} options={[["", "Include"], ["exclude", "Only state-targeted"]]} />
+        <Select label="Offered by" value={v.levels} onChange={(x) => set("levels", x)} options={[["", "Any agency"], ["federal", "Federal agencies"], ["state", "State agencies"]]} />
         <label className="text-sm">
           <span className="mb-1 block text-stone-600">Min award ($)</span>
           <input type="number" min={0} value={v.minAmount ?? ""} onChange={(e) => set("minAmount", e.target.value)} className="input" />
@@ -497,6 +498,7 @@ function toDraft(a: Alert): AlertDraft {
     amountMin: a.amount_min == null ? null : Number(a.amount_min),
     amountMax: a.amount_max == null ? null : Number(a.amount_max),
     includeFederal: a.include_federal,
+    includeNationwide: a.include_nationwide,
     active: a.active,
   };
 }
@@ -505,6 +507,7 @@ function describe(a: Alert, meta: Meta | null): string {
   const parts: string[] = [];
   parts.push(a.states.length ? a.states.map((s) => meta?.states[s] ?? s).join(", ") : "All states");
   if (a.include_federal) parts.push("+ federal");
+  if (a.states.length && !a.include_nationwide) parts.push("state-targeted only");
   if (a.entity_types.length) parts.push(a.entity_types.map((e) => meta?.entityTypes.find((x) => x.value === e)?.label ?? titleCase(e)).join("/"));
   if (a.categories.length) parts.push(a.categories.map(titleCase).join(", "));
   parts.push(a.funding_types.map((t) => meta?.fundingTypes.find((x) => x.value === t)?.label ?? titleCase(t)).join(", "));

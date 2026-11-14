@@ -69,6 +69,7 @@ export interface Alert {
   amount_min: string | null;
   amount_max: string | null;
   include_federal: boolean;
+  include_nationwide: boolean;
   active: boolean;
   created_at: string;
 }
