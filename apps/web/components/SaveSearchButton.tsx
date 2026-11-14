@@ -22,6 +22,7 @@ export function searchToDraft(v: Record<string, string | undefined>, stateNames:
     amountMin: v.minAmount ? Number(v.minAmount) : null,
     amountMax: v.maxAmount ? Number(v.maxAmount) : null,
     includeFederal: v.levels !== "state",
+    includeNationwide: v.nationwide !== "exclude",
     active: true,
   };
 }

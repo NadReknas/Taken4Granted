@@ -32,6 +32,13 @@ describe("filter SQL", () => {
     expect(where.join(" AND ")).toContain("funding_types &&");
     expect(params).toEqual(["open", ["IA"], ["grant", "other"], 1000, 50000]);
   });
+  it("only matches state-targeted opportunities when nationwide ones are excluded", () => {
+    const params: unknown[] = [];
+    const where = buildFilters(searchParamsSchema.parse({ states: "WA", nationwide: "exclude" }), params).join(" AND ");
+    expect(where).toContain("states && $2::text[]");
+    expect(where).not.toContain("states = '{}'");
+    expect(searchParamsSchema.parse({ nationwide: "" }).nationwide).toBe("include");
+  });
 });
 
 describe("anonymous result cap", () => {

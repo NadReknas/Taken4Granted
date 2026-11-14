@@ -42,6 +42,13 @@ export function SearchFilters({ meta, values }: Props) {
           ))}
         </select>
       </label>
+      <label className="text-sm">
+        <span className="mb-1 block text-stone-600">Nationwide programs</span>
+        <select name="nationwide" defaultValue={values.nationwide ?? ""} className="input" title="With a state picked, hide programs open to every state">
+          <option value="">Include</option>
+          <option value="exclude">Only state-targeted</option>
+        </select>
+      </label>
       <fieldset className="text-sm sm:col-span-2 lg:col-span-6">
         <legend className="mb-1 text-stone-600">Funding types</legend>
         <div className="flex flex-wrap gap-x-4 gap-y-1">
@@ -54,11 +61,11 @@ export function SearchFilters({ meta, values }: Props) {
         </div>
       </fieldset>
       <label className="text-sm">
-        <span className="mb-1 block text-stone-600">Level</span>
+        <span className="mb-1 block text-stone-600">Offered by</span>
         <select name="levels" defaultValue={values.levels ?? ""} className="input">
-          <option value="">Federal + state</option>
-          <option value="federal">Federal only</option>
-          <option value="state">State only</option>
+          <option value="">Any agency</option>
+          <option value="federal">Federal agencies</option>
+          <option value="state">State agencies</option>
         </select>
       </label>
       <label className="text-sm">

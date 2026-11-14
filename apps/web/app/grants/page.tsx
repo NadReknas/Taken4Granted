@@ -16,7 +16,7 @@ function first(v: string | string[] | undefined): string | undefined {
 }
 
 function pick(sp: Params): Record<string, string | undefined> {
-  const keys = ["q", "states", "entityTypes", "categories", "levels", "status", "minAmount", "maxAmount", "deadlineWithinDays", "sort", "page"];
+  const keys = ["q", "states", "nationwide", "entityTypes", "categories", "levels", "status", "minAmount", "maxAmount", "deadlineWithinDays", "sort", "page"];
   return { ...Object.fromEntries(keys.map((k) => [k, first(sp[k])])), fundingTypes: fundingTypesParam(sp.fundingTypes) };
 }
 
@@ -33,7 +33,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     v.categories ? titleCase(v.categories) : null,
     v.q ? `"${v.q}"` : null,
     v.states ? meta.states[v.states] : null,
-    v.levels ? titleCase(v.levels) : null,
+    v.levels ? `${titleCase(v.levels)} agency` : null,
   ].filter(Boolean);
   const title = parts.length ? `${parts.join(" · ")} grants` : "Open grant directory";
   const hasFilters = Object.values(v).some((x) => x && x !== "open" && x !== "deadline");

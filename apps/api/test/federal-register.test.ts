@@ -120,4 +120,16 @@ describe("state inference", () => {
     expect(inferStates("Administrative Declaration of a Disaster for the State of West Virginia")).toEqual(["WV"]);
     expect(inferStates("Virginia and West Virginia").sort()).toEqual(["VA", "WV"]);
   });
+
+  it("reads the states a federal title targets, including named regions", async () => {
+    const { inferTargetStates } = await import("../src/domain/opportunity.js");
+    expect(inferTargetStates("Cooperative Agreement for affiliated Partner with Chesapeake Watershed Cooperative Ecosystem Studies Unit")).toEqual(["DC", "DE", "MD", "NY", "PA", "VA", "WV"]);
+    expect(inferTargetStates("Affiliated Partner with the Pacific Northwest Cooperative Ecosystem Studies Unit (CESU)")).toEqual(["ID", "OR", "WA"]);
+    expect(inferTargetStates("FY 2025 Colorado River Basin Tribal Drought Resiliency Program")).toEqual(["AZ", "CA", "CO", "NM", "NV", "UT", "WY"]);
+    expect(inferTargetStates("Affiliated Partner with the Hawaiʻi-Pacific Islands CESU")).toEqual(["HI"]);
+    expect(inferTargetStates("FY27 Small Business Development Center State of Kansas Network Rebid")).toEqual(["KS"]);
+    expect(inferTargetStates("Rural Energy for America Program")).toEqual([]);
+    expect(inferTargetStates("Workshop in Washington, DC on watershed science")).toEqual(["DC"]);
+    expect(inferTargetStates("U.S. Embassy Tbilisi, Georgia Small Grants")).toEqual([]);
+  });
 });

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { apiGet, apiGetOrNull, type BillingConfig, type Opportunity } from "@/lib/api";
-import { amountLabel, deadlineLabel, formatDate, money, titleCase, trialLabel } from "@/lib/format";
+import { amountLabel, deadlineLabel, formatDate, money, titleCase, trialLabel, placeLabel } from "@/lib/format";
 
 import { SaveGrantButton } from "@/components/SaveButton";
 
@@ -68,11 +68,11 @@ export default async function GrantPage({ params }: { params: Promise<{ slug: st
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="flex flex-col gap-6">
         <nav className="text-sm text-stone-500" aria-label="Breadcrumb">
-          <Link href="/grants" className="hover:underline">Directory</Link> / <span>{o.level === "federal" ? "Federal" : o.states.join(", ")}</span>
+          <Link href="/grants" className="hover:underline">Directory</Link> / <span>{placeLabel(o.level, o.states)}</span>
         </nav>
         <header>
           <div className="mb-2 flex flex-wrap gap-2 text-xs">
-            <span className="badge border-stone-300 bg-white">{o.level === "federal" ? "Federal" : `State · ${o.states.join(", ")}`}</span>
+            <span className="badge border-stone-300 bg-white">{o.level === "federal" ? placeLabel(o.level, o.states) : `State · ${o.states.join(", ")}`}</span>
             <span className="badge border-stone-300 bg-white">{titleCase(o.status)}</span>
             {o.funding_types.map((t) => (
               <Link key={t} href={`/grants?fundingTypes=${t}`} className="badge border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100">

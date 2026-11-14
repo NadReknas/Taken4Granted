@@ -14,6 +14,7 @@ export interface AlertDraft {
   amountMin: number | null;
   amountMax: number | null;
   includeFederal: boolean;
+  includeNationwide: boolean;
   active: boolean;
 }
 
@@ -27,6 +28,7 @@ const EMPTY: AlertDraft = {
   amountMin: null,
   amountMax: null,
   includeFederal: true,
+  includeNationwide: true,
   active: true,
 };
 
@@ -74,7 +76,11 @@ export function AlertForm({ meta, initial, onSubmit, onCancel }: Props) {
         <legend className="mb-1 text-sm text-stone-600">Location</legend>
         <label className="mb-2 flex items-center gap-2 text-sm">
           <input type="checkbox" checked={d.includeFederal} onChange={(e) => setD({ ...d, includeFederal: e.target.checked })} />
-          Include federal / nationwide opportunities
+          Include federal programs
+        </label>
+        <label className="mb-2 flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={d.includeNationwide} onChange={(e) => setD({ ...d, includeNationwide: e.target.checked })} />
+          Include nationwide programs (open to every state)
         </label>
         <select
           multiple
@@ -86,7 +92,7 @@ export function AlertForm({ meta, initial, onSubmit, onCancel }: Props) {
             <option key={code} value={code}>{name}</option>
           ))}
         </select>
-        <p className="mt-1 text-xs text-stone-500">Hold Ctrl/Cmd to pick several states. Leave empty for all states.</p>
+        <p className="mt-1 text-xs text-stone-500">Hold Ctrl/Cmd to pick several states. Leave empty for all states. Unchecking nationwide keeps only programs targeted to the picked states.</p>
       </fieldset>
 
       <fieldset>

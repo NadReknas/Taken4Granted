@@ -17,6 +17,8 @@ export const searchParamsSchema = z.object({
   /** Omitted → DEFAULT_FUNDING_TYPES; pass every type to see everything. */
   fundingTypes: z.preprocess((v) => (v == null || v === "" ? DEFAULT_FUNDING_TYPES : v), csv(z.enum(FUNDING_TYPES)).pipe(z.array(z.enum(FUNDING_TYPES)).min(1))),
   levels: csv(z.enum(LEVELS)).default([]),
+  /** With a state filter: "exclude" drops nationwide records and keeps only ones targeted to the picked states. */
+  nationwide: z.preprocess((v) => (v === "" ? undefined : v), z.enum(["include", "exclude"]).default("include")),
   status: z.enum([...STATUSES, "all"]).default("open"),
   minAmount: z.coerce.number().nonnegative().optional(),
   maxAmount: z.coerce.number().nonnegative().optional(),
@@ -47,7 +49,7 @@ export function capSearchParams(p: SearchParams, limit = ANON_RESULT_LIMIT): Sea
 
 /**
  * Builds the WHERE clause shared by the public search and the alert matcher.
- * Location semantics: an opportunity with no states is nationwide and matches every state filter.
+ * Location semantics: an opportunity with no states is nationwide and matches every state filter unless nationwide = "exclude".
  * Amount semantics: overlap between [amount_min, amount_max] and [minAmount, maxAmount]; unknown amounts match.
  */
 export function buildFilters(p: SearchParams, params: unknown[], startIdx = params.length + 1): string[] {
@@ -59,7 +61,8 @@ export function buildFilters(p: SearchParams, params: unknown[], startIdx = para
   };
   if (p.status !== "all") where.push(`status = ${push(p.status)}`);
   if (p.q) where.push(`search_tsv @@ websearch_to_tsquery('english', ${push(p.q)})`);
-  if (p.states.length) where.push(`(states = '{}' OR states && ${push(p.states)}::text[])`);
+  if (p.states.length)
+    where.push(p.nationwide === "exclude" ? `states && ${push(p.states)}::text[]` : `(states = '{}' OR states && ${push(p.states)}::text[])`);
   if (p.entityTypes.length)
     where.push(`(entity_types = '{}' OR 'any' = ANY(entity_types) OR entity_types && ${push(p.entityTypes)}::text[])`);
   if (p.categories.length) where.push(`categories && ${push(p.categories)}::text[]`);

@@ -121,6 +121,11 @@ describe("Grants.gov adapter", () => {
     expect(normalizeHit(hit, detail, "grants_gov").fundingTypes).toEqual(["grant", "disaster_aid"]);
     expect(normalizeHit(hit, null, "grants_gov").fundingTypes).toEqual(["grant"]);
   });
+  it("scopes federal grants whose title names a region to that region's states", () => {
+    const hit = { id: "2", number: "NPS-1", title: "Cooperative Agreement for Affiliated Partner with the Pacific Northwest CESU", agency: "NPS", openDate: "08/01/2026", closeDate: "10/15/2026", oppStatus: "posted" as const };
+    expect(normalizeHit(hit, null, "grants_gov").states).toEqual(["ID", "OR", "WA"]);
+    expect(normalizeHit({ ...hit, title: "Rural Energy for America" }, null, "grants_gov").states).toEqual([]);
+  });
 
   it("fetches through the retrying HTTP client and survives a transient 503", async () => {
     let searchCalls = 0;
